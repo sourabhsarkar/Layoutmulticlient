@@ -34,11 +34,10 @@ public class ChatConnection {
 
     private int mPort = -1;
     Context mContext;
-    private boolean pass_flag;
 
     public ChatConnection(Handler handler, Context c) {
         mUpdateHandler = handler;
-        pass_flag = false;
+        mContext = c;
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
             mChatServer = new ChatServer();
@@ -277,14 +276,14 @@ public class ChatConnection {
                                 break;
                             }
                             if(message.getKey().equals("password")) {
-                                if (NsdChatActivity.mUserChoice.equals("server") && !pass_flag) {
+                                if (NsdChatActivity.mUserChoice.equals("server")) {
                                     if (!NsdChatActivity.server_pass.equals(message.getMessage())) {
                                         Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
+                                        Log.d(TAG, "pass: " + message.getMessage());
                                         sendMessage("passcheck", "Password mismatch, see you next time!");
                                         commonChats.remove(this);
                                         Thread.currentThread().interrupt();
-                                    } else
-                                        pass_flag = true;
+                                    }
                                 }
                             }
                             //updateMessages(messageStr, false);
