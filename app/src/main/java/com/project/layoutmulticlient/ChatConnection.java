@@ -1,6 +1,7 @@
 package com.project.layoutmulticlient;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -230,6 +231,11 @@ public class ChatConnection {
                         //Creating Client socket
                         sv_soc = new Socket(mAddress, PORT);
                         Log.d(CLIENT_TAG, "Client-side socket initialized.");
+                        ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(mContext, "Waiting for password verification...", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         sendMessage("passclient",NsdChatActivity.client_pass);
                     }
                     else {
@@ -268,25 +274,53 @@ public class ChatConnection {
                     ObjectInputStream input = new ObjectInputStream(sv_soc.getInputStream());
                     while (!Thread.currentThread().isInterrupted()) {
                         Msg message;
-                        message = (Msg)input.readObject();
+                        message = (Msg) input.readObject();
                         if (message != null) {
                             Log.d(CLIENT_TAG, "Read from the stream: " + message.getKey() + ": " + message.getMessage());
-                            if(message.getKey().equals("end")){
+                            if (message.getKey().equals("end")) {
                                 Log.d(CLIENT_TAG, "The end!");
                                 break;
                             }
-                            if(message.getKey().equals("password")) {
-                                if (NsdChatActivity.mUserChoice.equals("server")) {
+                            if (NsdChatActivity.mUserChoice.equals("server")) {
+                                if (message.getKey().equals("passclient")) {
                                     if (!NsdChatActivity.server_pass.equals(message.getMessage())) {
-                                        Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
+                                        /*
+                                        ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        */
                                         Log.d(TAG, "pass: " + message.getMessage());
-                                        sendMessage("passcheck", "Password mismatch, see you next time!");
-                                        commonChats.remove(this);
+                                        sendMessage("passcheck", "mismatch");
+                                        commonChats.remove(CommonChat.this);
                                         Thread.currentThread().interrupt();
+                                    }
+                                    else {
+                                        sendMessage("passcheck", "matched");
                                     }
                                 }
                             }
-                            //updateMessages(messageStr, false);
+                            else if (NsdChatActivity.mUserChoice.equals("client")) {
+                                if (message.getKey().equals("passcheck")) {
+                                    if (message.getMessage().equals("matched")) {
+                                        ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(mContext, "Password matched successfully!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                        Intent intent = new Intent(mContext, Participant_details.class);
+                                        mContext.startActivity(intent);
+                                    }
+                                    else {
+                                        ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                }
+                            }
                         }
                     }
                     input.close();

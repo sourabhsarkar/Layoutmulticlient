@@ -6,15 +6,12 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import java.net.Socket;
 
 public class NsdChatActivity extends Activity {
@@ -116,8 +113,10 @@ public class NsdChatActivity extends Activity {
         }
         else {
             clickConnect();
+            /*
             intent = new Intent(this, Participant_details.class);
             startActivity(intent);
+            */
         }
     }
 
