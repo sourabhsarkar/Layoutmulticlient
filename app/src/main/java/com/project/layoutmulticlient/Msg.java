@@ -13,7 +13,7 @@ public class Msg implements Serializable {
     private String message = null;
 
     private ArrayList<Question> questionArray = null;
-    private InetAddress address = null;
+    //private InetAddress address = null;
 
     public Msg(String key, String msg) {
         this.key = key;
@@ -29,9 +29,11 @@ public class Msg implements Serializable {
         return key;
     }
 
+    /*
     public InetAddress getAddress() {
         return address;
     }
+    */
 
     public String getMessage() {
         return message;

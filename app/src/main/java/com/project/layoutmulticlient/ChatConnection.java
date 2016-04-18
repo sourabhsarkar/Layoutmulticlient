@@ -30,6 +30,8 @@ public class ChatConnection {
     }
 
     public Msg createMessage(String key, ArrayList<Question> questions) {
+        for (Question question : questions)
+            System.out.println(question.quesStatement+"\n");
         return new Msg(key,questions);
     }
 
@@ -119,7 +121,7 @@ public class ChatConnection {
                 Socket sv_soc= null;
 
                 // Since discovery will happen via Nsd, we don't need to care which port is
-                // used.  Just grab an available one  and advertise it via Nsd.
+                // used.  Just grab an available one and advertise it via Nsd.
                 try {
                     //Creating server socket
                     mServerSocket = new ServerSocket(0);
@@ -231,11 +233,11 @@ public class ChatConnection {
         //Sending Thread
         class SendingThread implements Runnable {
 
-            BlockingQueue<String> mMessageQueue;
-            private int QUEUE_CAPACITY = 10;
+            //BlockingQueue<String> mMessageQueue;
+            //private int QUEUE_CAPACITY = 10;
 
             public SendingThread() {
-                mMessageQueue = new ArrayBlockingQueue<String>(QUEUE_CAPACITY);
+                //mMessageQueue = new ArrayBlockingQueue<String>(QUEUE_CAPACITY);
             }
 
             @Override
@@ -290,8 +292,7 @@ public class ChatConnection {
                     */
                     ObjectInputStream input = new ObjectInputStream(sv_soc.getInputStream());
                     while (!Thread.currentThread().isInterrupted()) {
-                        Msg message;
-                        message = (Msg) input.readObject();
+                        Msg message = (Msg) input.readObject();
                         if (message != null) {
                             Log.d(CLIENT_TAG, "Read from the stream: " + message.getKey() + ": " + message.getMessage());
                             if (message.getKey().equals("end")) {
@@ -314,6 +315,7 @@ public class ChatConnection {
                                         //Thread.currentThread().interrupt();
                                     }
                                     else {
+                                        pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
                                         sendMessage(createMessage("ques",sampleQuesList));
                                     }
@@ -377,7 +379,8 @@ public class ChatConnection {
             try {
                 if (sv_soc == null) {
                     Log.d(CLIENT_TAG, "Socket is null!");
-                } else if (sv_soc.getOutputStream() == null) {
+                }
+                else if (sv_soc.getOutputStream() == null) {
                     Log.d(CLIENT_TAG, "Socket output stream is null!");
                 }
 

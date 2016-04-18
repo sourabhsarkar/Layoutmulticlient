@@ -59,6 +59,7 @@ public class NsdChatActivity extends Activity {
             btn_join = (Button)findViewById(R.id.btn_join);
             progressBar = (ProgressBar)findViewById(R.id.progress_spinner);
             setVisibilityButton(false);
+            //search button in layout
         }
 
         //mStatusView = (TextView) findViewById(R.id.status);
