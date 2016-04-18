@@ -57,7 +57,7 @@ public class ChatConnection {
             chatClient.tearDown();
         }
     }
-    //hello
+
     //Creating and storing CommonChat objects
     public void commonConnection(InetAddress address, int port, Socket s) {
         for (CommonChat obj : commonChats) {
