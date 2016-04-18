@@ -30,8 +30,6 @@ public class ChatConnection {
     }
 
     public Msg createMessage(String key, ArrayList<Question> questions) {
-        for (Question question : questions)
-            System.out.println(question.quesStatement+"\n");
         return new Msg(key,questions);
     }
 
@@ -121,7 +119,7 @@ public class ChatConnection {
                 Socket sv_soc= null;
 
                 // Since discovery will happen via Nsd, we don't need to care which port is
-                // used.  Just grab an available one and advertise it via Nsd.
+                // used.  Just grab an available one  and advertise it via Nsd.
                 try {
                     //Creating server socket
                     mServerSocket = new ServerSocket(0);
@@ -233,11 +231,11 @@ public class ChatConnection {
         //Sending Thread
         class SendingThread implements Runnable {
 
-            //BlockingQueue<String> mMessageQueue;
-            //private int QUEUE_CAPACITY = 10;
+            BlockingQueue<String> mMessageQueue;
+            private int QUEUE_CAPACITY = 10;
 
             public SendingThread() {
-                //mMessageQueue = new ArrayBlockingQueue<String>(QUEUE_CAPACITY);
+                mMessageQueue = new ArrayBlockingQueue<String>(QUEUE_CAPACITY);
             }
 
             @Override
@@ -380,11 +378,13 @@ public class ChatConnection {
                 if (sv_soc == null) {
                     Log.d(CLIENT_TAG, "Socket is null!");
                 }
+                /*
                 else if (sv_soc.getOutputStream() == null) {
+
                     Log.d(CLIENT_TAG, "Socket output stream is null!");
                 }
 
-                /*
+
                 PrintWriter out = new PrintWriter(
                         new BufferedWriter(
                                 new OutputStreamWriter(sv_soc.getOutputStream())), true);

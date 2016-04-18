@@ -1,10 +1,12 @@
 package com.project.layoutmulticlient;
 
+import java.io.Serializable;
+
 /**
  * Created by Sourabh on 17-Apr-16.
  */
 
-public class Question {
+public class Question implements Serializable {
     public String quesStatement;
     public String option1;
     public String option2;
