@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import java.net.Socket;
 
@@ -23,6 +24,7 @@ public class NsdChatActivity extends Activity {
     private EditText con_name, con_password, con_details;
     private EditText con_join_name, con_join_pass;
     public static Button btn_join;
+    protected ProgressBar progressBar;
 
     private Handler mUpdateHandler;
 
@@ -55,6 +57,7 @@ public class NsdChatActivity extends Activity {
             con_join_name = (EditText)findViewById(R.id.con_join_name);
             con_join_pass = (EditText)findViewById(R.id.con_join_pass);
             btn_join = (Button)findViewById(R.id.btn_join);
+            progressBar = (ProgressBar)findViewById(R.id.progress_spinner);
             setVisibilityButton(false);
         }
 
@@ -150,6 +153,7 @@ public class NsdChatActivity extends Activity {
         }
     }
 
+    /*
     public void clickSend(View v) {
         EditText messageView = (EditText) this.findViewById(R.id.chatInput);
         if (messageView != null) {
@@ -160,6 +164,7 @@ public class NsdChatActivity extends Activity {
             messageView.setText("");
         }
     }
+    */
 
     public void addChatLine(String line) {
         //mStatusView.append("\n" + line);

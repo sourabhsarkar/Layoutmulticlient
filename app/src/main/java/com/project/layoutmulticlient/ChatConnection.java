@@ -2,22 +2,14 @@ package com.project.layoutmulticlient;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
-
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -25,11 +17,21 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
 public class ChatConnection {
 
     private Handler mUpdateHandler;
     private ChatServer mChatServer;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
+    ArrayList<Question> sampleQuesList = new ArrayList<Question>();
+
+    public Msg createMessage(String key, String message) {
+        return new Msg(key,message);
+    }
+
+    public Msg createMessage(String key, ArrayList<Question> questions) {
+        return new Msg(key,questions);
+    }
 
     private static final String TAG = "ChatConnection";
 
@@ -41,6 +43,7 @@ public class ChatConnection {
         mContext = c;
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
+            sampleQuesList.add(new Question("ques statement 1?", "option-1", "option-2", "option-3", "option-4"));
             mChatServer = new ChatServer();
         }
     }
@@ -55,16 +58,21 @@ public class ChatConnection {
 
     //Creating and storing CommonChat objects
     public void commonConnection(InetAddress address, int port, Socket s) {
+        for (CommonChat obj : commonChats) {
+            if(obj.mAddress == address) {
+                commonChats.remove(obj);
+            }
+        }
         CommonChat mChatClient = new CommonChat(address, port, s);
         commonChats.add(mChatClient);
     }
-    
+    /*
     public void sendMessage(String msg) {
         for (CommonChat chatClient : commonChats) {
             chatClient.sendMessage("Msg", msg);
         }
     }
-
+    */
     public int getLocalPort() {
         return mPort;
     }
@@ -190,6 +198,7 @@ public class ChatConnection {
         }
     }
 
+    //Class handle the chatting
     private class CommonChat {
 
         private InetAddress mAddress;
@@ -197,11 +206,17 @@ public class ChatConnection {
 
         private final String CLIENT_TAG = "CommonChat";
 
+        public String username = null;
+        public String email = null;
+        public String ph_no = null;
+        public boolean pass_verified = false;
+        public boolean ques_received = false;
+
         private Thread mSendThread;
         private Thread mRecThread;
         Socket sv_soc = null;
 
-        //Function to handle the chatting
+        //Constructor
         public CommonChat(InetAddress address, int port, Socket s) {
 
             Log.d(CLIENT_TAG, "Creating CommonChat");
@@ -233,10 +248,11 @@ public class ChatConnection {
                         Log.d(CLIENT_TAG, "Client-side socket initialized.");
                         ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
                             public void run() {
+                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.VISIBLE);
                                 Toast.makeText(mContext, "Waiting for password verification...", Toast.LENGTH_SHORT).show();
                             }
                         });
-                        sendMessage("passclient",NsdChatActivity.client_pass);
+                        sendMessage(createMessage("passclient",NsdChatActivity.client_pass));
                     }
                     else {
                         Log.d(CLIENT_TAG, "Socket already initialized. skipping!");
@@ -247,7 +263,7 @@ public class ChatConnection {
                 }
                 mRecThread = new Thread(new ReceivingThread());
                 mRecThread.start();
-
+                /*
                 while (Thread.currentThread().isAlive()) {
                     try {
                         String msg = mMessageQueue.take();
@@ -256,6 +272,7 @@ public class ChatConnection {
                         Log.d(CLIENT_TAG, "Message sending loop interrupted, exiting");
                     }
                 }
+                */
             }
         }
 
@@ -291,34 +308,50 @@ public class ChatConnection {
                                             }
                                         });
                                         */
-                                        Log.d(TAG, "pass: " + message.getMessage());
-                                        sendMessage("passcheck", "mismatch");
-                                        commonChats.remove(CommonChat.this);
-                                        Thread.currentThread().interrupt();
+                                        Log.d(TAG, "pass client: " + message.getMessage());
+                                        sendMessage(createMessage("passcheck", "mismatch"));
+                                        //commonChats.remove(CommonChat.this);
+                                        //Thread.currentThread().interrupt();
                                     }
                                     else {
-                                        sendMessage("passcheck", "matched");
+                                        sendMessage(createMessage("passcheck", "matched"));
+                                        sendMessage(createMessage("ques",sampleQuesList));
                                     }
                                 }
                             }
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
+                                        pass_verified = true;
                                         ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                             public void run() {
+                                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.GONE);
                                                 Toast.makeText(mContext, "Password matched successfully!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
+                                        /*
                                         Intent intent = new Intent(mContext, Participant_details.class);
                                         mContext.startActivity(intent);
+                                        */
                                     }
                                     else {
                                         ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                             public void run() {
+                                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.GONE);
                                                 Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }
+                                }
+                                else if(message.getKey().equals("ques")) {
+                                    ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
+                                        public void run() {
+                                            Toast.makeText(mContext, "Ques received!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                    Intent intent = new Intent(mContext, display_question.class);
+                                    intent.putExtra("quesMsg",message);
+                                    mContext.startActivity(intent);
                                 }
                             }
                         }
@@ -340,15 +373,13 @@ public class ChatConnection {
             }
         }
 
-        public void sendMessage(String key, String msg) {
+        public void sendMessage(Msg m) {
             try {
                 if (sv_soc == null) {
                     Log.d(CLIENT_TAG, "Socket is null!");
                 } else if (sv_soc.getOutputStream() == null) {
                     Log.d(CLIENT_TAG, "Socket output stream is null!");
                 }
-
-                Msg m = new Msg(key, msg, sv_soc.getInetAddress());
 
                 /*
                 PrintWriter out = new PrintWriter(
@@ -367,7 +398,7 @@ public class ChatConnection {
             } catch (Exception e) {
                 Log.d(CLIENT_TAG, "Error3", e);
             }
-            Log.d(CLIENT_TAG, "Client sent message: " + msg);
+            Log.d(CLIENT_TAG, "Client sent message: " + m.getKey() + ": " + m.getMessage());
         }
     }
 }

@@ -2,45 +2,43 @@ package com.project.layoutmulticlient;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 /**
  * Created by Sourabh on 24-Mar-16.
  */
 public class Msg implements Serializable {
 
-    private String key;
-    private String message;
-    private InetAddress address;
+    private String key = null;
+    private String message = null;
 
-    public Msg(String key, String msg, InetAddress address) {
+    private ArrayList<Question> questionArray = null;
+    private InetAddress address = null;
+
+    public Msg(String key, String msg) {
         this.key = key;
         message = msg;
-        this.address = address;
+    }
+
+    public Msg(String key, ArrayList<Question> q) {
+        this.key = key;
+        questionArray = q;
     }
 
     public String getKey() {
         return key;
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
     public InetAddress getAddress() {
         return address;
     }
-
-    public void setAddress(InetAddress address) {
-        this.address = address;
-    }
-
 
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public ArrayList<Question> getQuestionArray() {
+        return questionArray;
     }
 
 }
