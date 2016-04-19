@@ -216,6 +216,9 @@ public class ChatConnection {
         private Thread mRecThread;
         Socket sv_soc = null;
 
+        ObjectInputStream input = null;
+        ObjectOutputStream out = null;
+
         //Constructor
         public CommonChat(InetAddress address, int port, Socket s) {
 
@@ -288,7 +291,7 @@ public class ChatConnection {
                     input = new BufferedReader(new InputStreamReader(
                             sv_soc.getInputStream()));
                     */
-                    ObjectInputStream input = new ObjectInputStream(sv_soc.getInputStream());
+                    input = new ObjectInputStream(sv_soc.getInputStream());
                     while (!Thread.currentThread().isInterrupted()) {
                         Msg message = (Msg) input.readObject();
                         if (message != null) {
@@ -315,12 +318,11 @@ public class ChatConnection {
                                     else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
-                                        sendMessage(createMessage("passcheck", "mismatch"));
-                                        //sendMessage(createMessage("ques",sampleQuesList));
+                                        //sendMessage(createMessage("passcheck", "mismatch"));
+                                        sendMessage(createMessage("ques",sampleQuesList));
                                     }
                                 }
                             }
-                            //hello
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
@@ -391,10 +393,12 @@ public class ChatConnection {
                         new BufferedWriter(
                                 new OutputStreamWriter(sv_soc.getOutputStream())), true);
                 */
-                ObjectOutputStream out = new ObjectOutputStream(sv_soc.getOutputStream());
+                if(out == null)
+                    out = new ObjectOutputStream(sv_soc.getOutputStream());
 
                 out.writeObject(m);
                 out.flush();
+                out.reset();
                 //updateMessages(Msg, true);
             } catch (UnknownHostException e) {
                 Log.d(CLIENT_TAG, "Unknown Host", e);
