@@ -315,7 +315,8 @@ public class ChatConnection {
                                     else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
-                                        sendMessage(createMessage("ques",sampleQuesList));
+                                        sendMessage(createMessage("passcheck", "mismatch"));
+                                        //sendMessage(createMessage("ques",sampleQuesList));
                                     }
                                 }
                             }
