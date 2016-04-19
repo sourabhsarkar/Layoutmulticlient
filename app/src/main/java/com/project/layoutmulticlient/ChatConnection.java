@@ -320,6 +320,7 @@ public class ChatConnection {
                                     }
                                 }
                             }
+                            //hello
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
