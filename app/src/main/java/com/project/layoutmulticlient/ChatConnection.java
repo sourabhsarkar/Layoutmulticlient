@@ -20,7 +20,7 @@ public class ChatConnection {
 
     private ChatServer mChatServer;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
-    ArrayList<Question> sampleQuesList = new ArrayList<Question>();
+    ArrayList<Question> quesList = new ArrayList<Question>();
 
     public Msg createMessage(String key, String message) {
         return new Msg(key,message);
@@ -39,11 +39,13 @@ public class ChatConnection {
         mContext = c;
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
-            sampleQuesList.add(new Question("What is the capital of India?", "Delhi", "Kolkata", "Mumbai", "None of these",1));
-            sampleQuesList.add(new Question("What is the capital of West Bengal?", "Chandigarh", "Goa", "Kolkata", "Srinagar",3));
-            sampleQuesList.add(new Question("What is the financial capital of Bihar?", "Hyderabad", "Patna", "Chennai", "Begusarai",4));
-            sampleQuesList.add(new Question("What is the capital of Andhra Pradesh?", "Visakhapatnam", "Hyderabad", "Haridwar", "None of these",2));
-            sampleQuesList.add(new Question("What is the capital of Tamil Nadu?", "Delhi", "Kolkata", "Mumbai", "Chennai",4));
+            /*
+            quesList.add(new Question("What is the capital of India?", "Delhi", "Kolkata", "Mumbai", "None of these",1));
+            quesList.add(new Question("What is the capital of West Bengal?", "Chandigarh", "Goa", "Kolkata", "Srinagar",3));
+            quesList.add(new Question("What is the financial capital of Bihar?", "Hyderabad", "Patna", "Chennai", "Begusarai",4));
+            quesList.add(new Question("What is the capital of Andhra Pradesh?", "Visakhapatnam", "Hyderabad", "Haridwar", "None of these",2));
+            quesList.add(new Question("What is the capital of Tamil Nadu?", "Delhi", "Kolkata", "Mumbai", "Chennai",4));
+            */
             mChatServer = new ChatServer();
         }
     }
@@ -66,13 +68,21 @@ public class ChatConnection {
         CommonChat mChatClient = new CommonChat(address, port, s);
         commonChats.add(mChatClient);
     }
-    /*
-    public void sendMessage(String msg) {
+
+    public void sendAllMessage(String key, String msg) {
         for (CommonChat chatClient : commonChats) {
-            chatClient.sendMessage("Msg", msg);
+            if(chatClient.pass_verified)
+                chatClient.sendMessage(createMessage(key, msg));
         }
     }
-    */
+
+    public void sendAllMessage(String key, ArrayList<Question> quesList) {
+        for (CommonChat chatClient : commonChats) {
+            if(chatClient.pass_verified)
+                chatClient.sendMessage(createMessage(key, quesList));
+        }
+    }
+
     public int getLocalPort() {
         return mPort;
     }
@@ -320,7 +330,7 @@ public class ChatConnection {
                                     else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
-                                        sendMessage(createMessage("ques",sampleQuesList));
+                                        //sendMessage(createMessage("ques", quesList));
                                     }
                                 }
                             }

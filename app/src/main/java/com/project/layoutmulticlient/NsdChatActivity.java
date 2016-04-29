@@ -2,11 +2,8 @@ package com.project.layoutmulticlient;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,30 +12,23 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
-
 public class NsdChatActivity extends Activity {
 
     Intent intent;
     NsdHelper mNsdHelper;
 
-    //private TextView mStatusView;
     private EditText con_name, con_password, con_details;
     private EditText con_join_name, con_join_pass;
     private EditText part_name, part_ph, part_email;
     public static Button btn_join;
     protected ProgressBar progressBar;
-    private Uri uri;
 
     public static final String TAG = "NsdChat";
     public static String mUserChoice;
     public static String mServiceName;
     public static String server_pass, client_pass;
 
-    ChatConnection mConnection;
+    public static ChatConnection mConnection;
 
     /** Called when the activity is first created. */
     @Override
@@ -51,7 +41,7 @@ public class NsdChatActivity extends Activity {
 
         mUserChoice = getIntent().getStringExtra("flag");
         if(mUserChoice.equals("server")) {
-            setContentView(R.layout.activity_contest__creation);
+            setContentView(R.layout.activity_contest_creation);
 
             con_name= (EditText)findViewById(R.id.con_name);
             con_password= (EditText)findViewById(R.id.con_password);
@@ -112,10 +102,6 @@ public class NsdChatActivity extends Activity {
         }
         else {
             clickConnect();
-            /*
-            intent = new Intent(this, Participant_details.class);
-            startActivity(intent);
-            */
         }
     }
 
@@ -141,54 +127,10 @@ public class NsdChatActivity extends Activity {
         if (service != null) {
             Log.d(TAG, "Connecting...");
             Toast.makeText(this, "Connecting...",Toast.LENGTH_SHORT).show();
-            Socket s = null;
-            mConnection.commonConnection(service.getHost(), service.getPort(), s);
+            mConnection.commonConnection(service.getHost(), service.getPort(), null);
         } else {
             Log.d(TAG, "No service to connect to!");
             Toast.makeText(this, "No service to connect to!",Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /*
-    public void clickSend(View v) {
-        EditText messageView = (EditText) this.findViewById(R.id.chatInput);
-        if (messageView != null) {
-            String messageString = messageView.getText().toString();
-            if (!messageString.isEmpty()) {
-                mConnection.sendMessage(messageString);
-            }
-            messageView.setText("");
-        }
-    }
-
-    public void addChatLine(String line) {
-        //mStatusView.append("\n" + line);
-    }
-    */
-
-    public void addQues(View view) {
-        Intent chooseExcelIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        chooseExcelIntent.setType("application/vnd.ms-excel");
-        startActivityForResult(chooseExcelIntent, 1);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        Log.d(TAG, "Result");
-
-        if (resultCode == RESULT_OK && requestCode == 1) {
-                if (data == null) {
-                    Toast.makeText(this, "No file found!", Toast.LENGTH_LONG).show();
-                } else {
-                    uri = data.getData();
-                    Log.i(TAG, "Excel URI: " + uri);
-                    ReadExcelFile.readExcelFile(this, uri);
-                }
-        }
-        else if (resultCode != RESULT_CANCELED) {
-            Toast.makeText(this, "There was an error reading the file!", Toast.LENGTH_LONG).show();
         }
     }
 

@@ -46,14 +46,6 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="Add Questions"
-            android:id="@+id/add_ques_btn"
-            android:onClick="addQues"
-            android:layout_marginTop="25dp" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
             android:text="Create"
             android:id="@+id/con_create"
             android:onClick="con_create_click"
