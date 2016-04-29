@@ -5,6 +5,7 @@
     <uses-permission
         android:name="android.permission.INTERNET"
         android:required="true" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -27,10 +28,7 @@
         <activity
             android:name=".Contest_Upload"
             android:theme="@style/AppTheme" />
-        <activity
-            android:name=".Participant_details"
-            android:theme="@style/AppTheme" />
-        <activity android:name=".display_question"></activity>
+        <activity android:name=".DisplayQuestions"/>
     </application>
 
 </manifest>

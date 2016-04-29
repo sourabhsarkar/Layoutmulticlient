@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.project.layoutmulticlient.display_question">
+    tools:context=".DisplayQuestions">
 
     <include layout="@layout/toolbar"/>
     <RelativeLayout
@@ -52,5 +52,15 @@
                 android:id="@+id/option4" />
 
         </RadioGroup>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:id="@+id/nextButton"
+            android:onClick="nextClicked"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="55dp" />
     </RelativeLayout>
 </LinearLayout>

@@ -1,11 +1,9 @@
 package com.project.layoutmulticlient;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 public class NsdHelper {
@@ -183,10 +181,7 @@ public class NsdHelper {
 
     public void stopDiscovery() {
         if (mDiscoveryListener != null) {
-            try {
                 mNsdManager.stopServiceDiscovery(mDiscoveryListener);
-            } finally {
-            }
             mDiscoveryListener = null;
         }
     }
@@ -197,10 +192,7 @@ public class NsdHelper {
 
     public void tearDown() {
         if (mRegistrationListener != null) {
-            try {
                 mNsdManager.unregisterService(mRegistrationListener);
-            } finally {
-            }
             mRegistrationListener = null;
         }
     }

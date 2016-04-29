@@ -2,8 +2,6 @@ package com.project.layoutmulticlient;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -20,7 +18,6 @@ import java.util.concurrent.BlockingQueue;
 
 public class ChatConnection {
 
-    private Handler mUpdateHandler;
     private ChatServer mChatServer;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
     ArrayList<Question> sampleQuesList = new ArrayList<Question>();
@@ -38,12 +35,15 @@ public class ChatConnection {
     private int mPort = -1;
     Context mContext;
 
-    public ChatConnection(Handler handler, Context c) {
-        mUpdateHandler = handler;
+    public ChatConnection(Context c) {
         mContext = c;
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
-            sampleQuesList.add(new Question("ques statement 1?", "option-1", "option-2", "option-3", "option-4"));
+            sampleQuesList.add(new Question("What is the capital of India?", "Delhi", "Kolkata", "Mumbai", "None of these",1));
+            sampleQuesList.add(new Question("What is the capital of West Bengal?", "Chandigarh", "Goa", "Kolkata", "Srinagar",3));
+            sampleQuesList.add(new Question("What is the financial capital of Bihar?", "Hyderabad", "Patna", "Chennai", "Begusarai",4));
+            sampleQuesList.add(new Question("What is the capital of Andhra Pradesh?", "Visakhapatnam", "Hyderabad", "Haridwar", "None of these",2));
+            sampleQuesList.add(new Question("What is the capital of Tamil Nadu?", "Delhi", "Kolkata", "Mumbai", "Chennai",4));
             mChatServer = new ChatServer();
         }
     }
@@ -249,12 +249,14 @@ public class ChatConnection {
                         //Creating Client socket
                         sv_soc = new Socket(mAddress, PORT);
                         Log.d(CLIENT_TAG, "Client-side socket initialized.");
+                        /*
                         ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
                             public void run() {
                                 ((NsdChatActivity) mContext).progressBar.setVisibility(View.VISIBLE);
                                 Toast.makeText(mContext, "Waiting for password verification...", Toast.LENGTH_SHORT).show();
                             }
                         });
+                        */
                         sendMessage(createMessage("passclient",NsdChatActivity.client_pass));
                     }
                     else {
@@ -318,7 +320,6 @@ public class ChatConnection {
                                     else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
-                                        //sendMessage(createMessage("passcheck", "mismatch"));
                                         sendMessage(createMessage("ques",sampleQuesList));
                                     }
                                 }
@@ -327,15 +328,13 @@ public class ChatConnection {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
                                         pass_verified = true;
+                                        /*
                                         ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                             public void run() {
                                                 ((NsdChatActivity) mContext).progressBar.setVisibility(View.GONE);
                                                 Toast.makeText(mContext, "Password matched successfully!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
-                                        /*
-                                        Intent intent = new Intent(mContext, Participant_details.class);
-                                        mContext.startActivity(intent);
                                         */
                                     }
                                     else {
@@ -348,12 +347,14 @@ public class ChatConnection {
                                     }
                                 }
                                 else if(message.getKey().equals("ques")) {
+                                    /*
                                     ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                         public void run() {
                                             Toast.makeText(mContext, "Ques received!", Toast.LENGTH_SHORT).show();
                                         }
                                     });
-                                    Intent intent = new Intent(mContext, display_question.class);
+                                    */
+                                    Intent intent = new Intent(mContext, DisplayQuestions.class);
                                     intent.putExtra("quesMsg",message);
                                     mContext.startActivity(intent);
                                 }

@@ -2,6 +2,7 @@ package com.project.layoutmulticlient;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 
 public class NsdChatActivity extends Activity {
@@ -23,10 +28,10 @@ public class NsdChatActivity extends Activity {
     //private TextView mStatusView;
     private EditText con_name, con_password, con_details;
     private EditText con_join_name, con_join_pass;
+    private EditText part_name, part_ph, part_email;
     public static Button btn_join;
     protected ProgressBar progressBar;
-
-    private Handler mUpdateHandler;
+    private Uri uri;
 
     public static final String TAG = "NsdChat";
     public static String mUserChoice;
@@ -53,26 +58,16 @@ public class NsdChatActivity extends Activity {
             con_details= (EditText)findViewById(R.id.con_details);
         }
         else if(mUserChoice.equals("client")) {
-            setContentView(R.layout.activity_join__contest);
+            setContentView(R.layout.activity_join_contest);
             con_join_name = (EditText)findViewById(R.id.con_join_name);
             con_join_pass = (EditText)findViewById(R.id.con_join_pass);
+            part_name = (EditText)findViewById(R.id.part_name);
+            part_ph = (EditText)findViewById(R.id.part_ph);
+            part_email = (EditText)findViewById(R.id.part_email);
             btn_join = (Button)findViewById(R.id.btn_join);
             progressBar = (ProgressBar)findViewById(R.id.progress_spinner);
             setVisibilityButton(false);
-            //search button in layout
         }
-
-        //mStatusView = (TextView) findViewById(R.id.status);
-        //mStatusView.setMovementMethod(new ScrollingMovementMethod());
-
-        mUpdateHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                String chatLine = msg.getData().getString("Msg");
-                addChatLine(chatLine);
-            }
-        };
-
     }
 
     public void con_create_click(View v){
@@ -165,17 +160,45 @@ public class NsdChatActivity extends Activity {
             messageView.setText("");
         }
     }
-    */
 
     public void addChatLine(String line) {
         //mStatusView.append("\n" + line);
+    }
+    */
+
+    public void addQues(View view) {
+        Intent chooseExcelIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseExcelIntent.setType("application/vnd.ms-excel");
+        startActivityForResult(chooseExcelIntent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "Result");
+
+        if (resultCode == RESULT_OK && requestCode == 1) {
+                if (data == null) {
+                    Toast.makeText(this, "No file found!", Toast.LENGTH_LONG).show();
+                } else {
+                    uri = data.getData();
+                    Log.i(TAG, "Excel URI: " + uri);
+                    ReadExcelFile.readExcelFile(this, uri);
+                }
+        }
+        else if (resultCode != RESULT_CANCELED) {
+            Toast.makeText(this, "There was an error reading the file!", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     protected void onStart() {
         Log.d(TAG, "Starting.");
         //creating an object of the ChatConnection class
-        mConnection = new ChatConnection(mUpdateHandler, this);
+        mConnection = new ChatConnection(this);
+        if(mNsdHelper != null)
+            mNsdHelper.tearDown();
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeNsd();
         super.onStart();
@@ -185,9 +208,8 @@ public class NsdChatActivity extends Activity {
     @Override
     protected void onPause() {
         Log.d(TAG, "Pausing.");
-        if (mNsdHelper != null) {
+        if (mNsdHelper != null)
             //mNsdHelper.stopDiscovery();
-        }
         super.onPause();
     }
 
@@ -211,19 +233,32 @@ public class NsdChatActivity extends Activity {
     // our connection goes away when we're killed, so this step is
     // optional (but recommended).
 
-    /*
+
     @Override
     protected void onStop() {
         Log.d(TAG, "Being stopped.");
+        if(isFinishing()) {
+            Log.d(TAG, "Is finishing!");
+            if (mNsdHelper != null)
+                mNsdHelper.stopDiscovery();
+            if (mNsdHelper != null)
+                mNsdHelper.tearDown();
+            if (mConnection != null)
+                mConnection.tearDown();
+            mNsdHelper = null;
+            mConnection = null;
+        }
         super.onStop();
     }
-    */
+
 
     @Override
     protected void onDestroy() {
         Log.d(TAG, "Being destroyed.");
-        mNsdHelper.tearDown();
-        mConnection.tearDown();
+        if(mNsdHelper != null)
+            mNsdHelper.tearDown();
+        if(mConnection != null)
+            mConnection.tearDown();
         mNsdHelper = null;
         mConnection = null;
         super.onDestroy();
