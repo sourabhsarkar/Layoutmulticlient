@@ -332,7 +332,7 @@ public class ChatConnection {
                                     else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
-                                        //sendMessage(createMessage("ques", quesList));
+                                        sendMessage(createMessage("contest_details", NsdChatActivity.con_details_str));
                                     }
                                 }
                             }
@@ -367,6 +367,9 @@ public class ChatConnection {
                                 }
                                 else if(message.getKey().equals("timer")) {
                                     intent.putExtra("timer", Long.parseLong(message.getMessage()));
+                                }
+                                else if(message.getKey().equals("contest_details")) {
+                                    intent.putExtra("contest_details", message.getMessage());
                                 }
                             }
                         }

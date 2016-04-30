@@ -26,7 +26,7 @@ public class NsdChatActivity extends Activity {
     public static final String TAG = "NsdChat";
     public static String mUserChoice;
     public static String mServiceName;
-    public static String server_pass, client_pass;
+    public static String server_pass, client_pass, con_details_str;
 
     public static ChatConnection mConnection;
 
@@ -68,6 +68,7 @@ public class NsdChatActivity extends Activity {
         }
         else {
             mServiceName = con_name.getText().toString();
+            con_details_str = con_details.getText().toString();
             clickAdvertise();
             intent = new Intent(this, ContestUpload.class);
             startActivity(intent);

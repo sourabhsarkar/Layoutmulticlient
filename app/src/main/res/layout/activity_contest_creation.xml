@@ -31,7 +31,7 @@
             android:id="@+id/con_password"
             android:layout_marginTop="25dp"
             android:focusableInTouchMode="true"
-            android:hint="Set a password"/>
+            android:hint="Contest password"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -41,7 +41,7 @@
             android:id="@+id/con_details"
             android:layout_marginTop="25dp"
             android:focusableInTouchMode="true"
-            android:hint="Enter contest details"/>
+            android:hint="Enter contest rules to be shown to contestants..."/>
 
         <Button
             android:layout_width="match_parent"

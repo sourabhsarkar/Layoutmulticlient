@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -30,6 +32,7 @@ public class DisplayQuestions extends AppCompatActivity {
     Button next_btn;
     Random rand = new Random();
     boolean set[];
+    boolean doubleBackToExitPressedOnce = false;
     Intent timerIntent;
     int count = 0, i = 0;
     long mins = 0, secs = 0;
@@ -39,6 +42,7 @@ public class DisplayQuestions extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_question);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         quesStatement = (TextView) findViewById(R.id.quesStatement);
         timerTextView = (TextView) findViewById(R.id.timerTextView);
@@ -158,5 +162,23 @@ public class DisplayQuestions extends AppCompatActivity {
         stopService(timerIntent);
         Log.i(TAG, "Stopped service");
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 }
