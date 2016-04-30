@@ -14,19 +14,30 @@
         android:paddingRight="@dimen/activity_horizontal_margin">
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="0:00"
+            android:id="@+id/timerTextView"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Large Text"
             android:id="@+id/quesStatement"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:layout_below="@+id/timerTextView" />
 
         <RadioGroup
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/radioGroupOptions"
-            android:layout_below="@id/quesStatement"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_below="@+id/quesStatement">
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -63,5 +74,6 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="55dp" />
+
     </RelativeLayout>
 </LinearLayout>

@@ -229,6 +229,8 @@ public class ChatConnection {
         ObjectInputStream input = null;
         ObjectOutputStream out = null;
 
+        Intent intent = new Intent(mContext, ContestRules.class);
+
         //Constructor
         public CommonChat(InetAddress address, int port, Socket s) {
 
@@ -357,16 +359,14 @@ public class ChatConnection {
                                     }
                                 }
                                 else if(message.getKey().equals("ques")) {
-                                    /*
-                                    ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            Toast.makeText(mContext, "Ques received!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                    */
-                                    Intent intent = new Intent(mContext, DisplayQuestions.class);
-                                    intent.putExtra("quesMsg",message);
-                                    mContext.startActivity(intent);
+                                    if(!ques_received) {
+                                        ques_received = true;
+                                        intent.putExtra("quesMsg", message);
+                                        mContext.startActivity(intent);
+                                    }
+                                }
+                                else if(message.getKey().equals("timer")) {
+                                    intent.putExtra("timer", Long.parseLong(message.getMessage()));
                                 }
                             }
                         }

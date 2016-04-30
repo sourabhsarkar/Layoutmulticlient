@@ -69,7 +69,7 @@ public class NsdChatActivity extends Activity {
         else {
             mServiceName = con_name.getText().toString();
             clickAdvertise();
-            intent = new Intent(this, Contest_Upload.class);
+            intent = new Intent(this, ContestUpload.class);
             startActivity(intent);
         }
     }
