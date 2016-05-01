@@ -22,10 +22,12 @@ public class ChatConnection {
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
     ArrayList<Question> quesList = new ArrayList<Question>();
 
+    //for passsing normal messages
     public Msg createMessage(String key, String message) {
         return new Msg(key,message);
     }
 
+    //for passing questions
     public Msg createMessage(String key, ArrayList<Question> questions) {
         return new Msg(key,questions);
     }
@@ -269,6 +271,7 @@ public class ChatConnection {
                             }
                         });
                         */
+                        //passing password
                         sendMessage(createMessage("passclient",NsdChatActivity.client_pass));
                     }
                     else {

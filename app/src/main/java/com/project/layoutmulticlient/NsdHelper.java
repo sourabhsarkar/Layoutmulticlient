@@ -11,6 +11,7 @@ public class NsdHelper {
     Context mContext;
 
     NsdManager mNsdManager;
+    //ResolveListener, DiscoveryListener and RegistrationListener are inner class
     NsdManager.ResolveListener mResolveListener;
     NsdManager.DiscoveryListener mDiscoveryListener;
     NsdManager.RegistrationListener mRegistrationListener;
@@ -23,6 +24,7 @@ public class NsdHelper {
     public static boolean flag;
 
     NsdServiceInfo mService;
+
 
     public NsdHelper(Context context) {
         mContext = context;
@@ -113,7 +115,7 @@ public class NsdHelper {
                 ac.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
+                        //show the join button
                         ac.setVisibilityButton(true);
                     }
                 });

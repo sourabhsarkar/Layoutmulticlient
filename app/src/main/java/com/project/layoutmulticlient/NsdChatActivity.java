@@ -41,6 +41,7 @@ public class NsdChatActivity extends Activity {
 
         mUserChoice = getIntent().getStringExtra("flag");
         if(mUserChoice.equals("server")) {
+            //show contest creation activity
             setContentView(R.layout.activity_contest_creation);
 
             con_name= (EditText)findViewById(R.id.con_name);
@@ -48,6 +49,7 @@ public class NsdChatActivity extends Activity {
             con_details= (EditText)findViewById(R.id.con_details);
         }
         else if(mUserChoice.equals("client")) {
+            //show join contest activity
             setContentView(R.layout.activity_join_contest);
             con_join_name = (EditText)findViewById(R.id.con_join_name);
             con_join_pass = (EditText)findViewById(R.id.con_join_pass);
@@ -87,6 +89,7 @@ public class NsdChatActivity extends Activity {
         }
     }
 
+    //control the visibility of the join button
     public void setVisibilityButton(boolean flag)
     {
         if(flag)
@@ -143,7 +146,7 @@ public class NsdChatActivity extends Activity {
         if(mNsdHelper != null)
             mNsdHelper.tearDown();
         mNsdHelper = new NsdHelper(this);
-        mNsdHelper.initializeNsd();
+        mNsdHelper.initializeNsd();//initializing ResolveListener()
         super.onStart();
     }
 
