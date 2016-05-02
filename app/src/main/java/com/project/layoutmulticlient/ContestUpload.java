@@ -1,7 +1,10 @@
 package com.project.layoutmulticlient;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,10 +22,13 @@ public class ContestUpload extends Activity {
     private Uri uri;
     private ArrayList<Question> questionArrayList = new ArrayList<Question>();
     EditText timerHours, timerMins;
-    Button sendBtn;
+    Button addQuesBtn, sendBtn;
+    Intent timerIntent;
     String strHrs, strMins;
     int tHrs, tMins;
-    long millSecs;
+    public static long millSecs;
+    long mins, hours;
+    boolean timerStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +37,7 @@ public class ContestUpload extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         sendBtn = (Button) findViewById(R.id.sendQuesTimerButton);
+        addQuesBtn = (Button) findViewById(R.id.add_ques_btn);
         sendBtn.setVisibility(View.GONE);
 
         timerHours = (EditText) findViewById(R.id.timerHours);
@@ -78,10 +85,69 @@ public class ContestUpload extends Activity {
             if (tMins >= 60 || tMins < 0) {
                 Toast.makeText(this, "Minutes must be within 0 to 59!", Toast.LENGTH_SHORT).show();
             } else {
+                if(!timerStarted) {
+                    timerIntent = new Intent(this, TimerBroadcastService.class);
+                    startService(timerIntent);
+                    timerStarted = true;
+                    Log.i(TAG, "Started service");
+                }
                 millSecs = (tHrs * 60 + tMins) * 60000;
                 NsdChatActivity.mConnection.sendAllMessage("timer", String.valueOf(millSecs));
                 NsdChatActivity.mConnection.sendAllMessage("ques", questionArrayList);
+                addQuesBtn.setEnabled(false);
             }
         }
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getExtras() != null) {
+                long millisUntilFinished = intent.getLongExtra("countdown", 0);
+                mins = millisUntilFinished/60000;
+                hours = mins / 60;
+                mins -= hours * 60;
+                timerHours.setText(String.valueOf(hours));
+                timerMins.setText(String.valueOf(mins));
+            }
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter(TimerBroadcastService.COUNTDOWN_BR));
+        Log.i(TAG, "Registered broadcast receiver");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        Log.i(TAG, "Unregistered broadcast receiver");
+    }
+
+    @Override
+    public void onStop() {
+        try {
+            unregisterReceiver(broadcastReceiver);
+        } catch (Exception e) {
+            // Receiver was probably already stopped in onPause()
+            Log.d(TAG, e.getMessage());
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        try {
+            stopService(timerIntent);
+            Log.i(TAG, "Stopped service");
+        }
+        catch (Exception e) {
+            Log.d(TAG, e.getMessage());
+        }
+        super.onDestroy();
+    }
+
 }

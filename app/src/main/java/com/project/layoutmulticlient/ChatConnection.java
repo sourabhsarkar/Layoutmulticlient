@@ -30,6 +30,10 @@ public class ChatConnection {
         return new Msg(key,questions);
     }
 
+    public Msg createMessage(String key, int qa[]) {
+        return new Msg(key,qa);
+    }
+
     private static final String TAG = "ChatConnection";
 
     private int mPort = -1;
@@ -39,13 +43,6 @@ public class ChatConnection {
         mContext = c;
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
-            /*
-            quesList.add(new Question("What is the capital of India?", "Delhi", "Kolkata", "Mumbai", "None of these",1));
-            quesList.add(new Question("What is the capital of West Bengal?", "Chandigarh", "Goa", "Kolkata", "Srinagar",3));
-            quesList.add(new Question("What is the financial capital of Bihar?", "Hyderabad", "Patna", "Chennai", "Begusarai",4));
-            quesList.add(new Question("What is the capital of Andhra Pradesh?", "Visakhapatnam", "Hyderabad", "Haridwar", "None of these",2));
-            quesList.add(new Question("What is the capital of Tamil Nadu?", "Delhi", "Kolkata", "Mumbai", "Chennai",4));
-            */
             mChatServer = new ChatServer();
         }
     }
@@ -83,6 +80,13 @@ public class ChatConnection {
         }
     }
 
+    public void sendAllMessage(String key, int qa[]) {
+        for (CommonChat chatClient : commonChats) {
+            if(chatClient.pass_verified)
+                chatClient.sendMessage(createMessage(key, qa));
+        }
+    }
+
     public int getLocalPort() {
         return mPort;
     }
@@ -90,26 +94,6 @@ public class ChatConnection {
     public void setLocalPort(int port) {
         mPort = port;
     }
-
-    /*
-    public synchronized void updateMessages(String Msg, boolean local) {
-        Log.e(TAG, "Updating message: " + Msg);
-
-        if (local) {
-            Msg = "sent: " + Msg;
-        } else {
-            Msg = "received: " + Msg;
-        }
-
-        Bundle messageBundle = new Bundle();
-        messageBundle.putString("Msg", Msg);
-
-        Message message = new Message();
-        message.setData(messageBundle);
-        mUpdateHandler.sendMessage(message);
-
-    }
-    */
 
     private class ChatServer {
 
@@ -161,17 +145,10 @@ public class ChatConnection {
                     }
                 }
             }
-            /*
-            public void doSomethingOnAllThreads() {
-                for (ServerThread serverThread : serverThreads) {
-                    serverThread.otherMethod();
-                }
-            }
-            */
         }
 
+        //interrupts all server threads
         public void tearDown() {
-            //interrupt all server threads
             for (ServerThread serverThread : serverThreads)
                 serverThread.t.interrupt();
             try {
@@ -190,21 +167,11 @@ public class ChatConnection {
             }
             @Override
             public void run() {
-                //setSocket(sv_soc);
-                //if (mChatClient == null) {
                 int port = sv_soc.getPort();
                 InetAddress address = sv_soc.getInetAddress();
                 Log.d(TAG, "commonConnection being called from ServerThread!");
                 commonConnection(address, port, sv_soc);
-                //}
             }
-            /*
-            @Override
-            public void finalize() throws Throwable {
-                Log.d(TAG, "Finalize");
-                super.finalize();
-            }
-            */
         }
     }
 
@@ -221,6 +188,10 @@ public class ChatConnection {
         public String ph_no = null;
         public boolean pass_verified = false;
         public boolean ques_received = false;
+        public boolean contest_ended = false;
+
+        public int questionOrder[];
+        public int answerMarked[];
 
         private Thread mSendThread;
         private Thread mRecThread;
@@ -261,15 +232,10 @@ public class ChatConnection {
                         //Creating Client socket
                         sv_soc = new Socket(mAddress, PORT);
                         Log.d(CLIENT_TAG, "Client-side socket initialized.");
-                        /*
-                        ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
-                            public void run() {
-                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.VISIBLE);
-                                Toast.makeText(mContext, "Waiting for password verification...", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        */
-                        sendMessage(createMessage("passclient",NsdChatActivity.client_pass));
+                        sendMessage(createMessage("clientpass",NsdChatActivity.client_pass));
+                        sendMessage(createMessage("clientname",NsdChatActivity.clientName));
+                        sendMessage(createMessage("clientemail",NsdChatActivity.clientEmail));
+                        sendMessage(createMessage("clientphno",NsdChatActivity.clientPhNo));
                     }
                     else {
                         Log.d(CLIENT_TAG, "Socket already initialized. skipping!");
@@ -280,16 +246,6 @@ public class ChatConnection {
                 }
                 mRecThread = new Thread(new ReceivingThread());
                 mRecThread.start();
-                /*
-                while (Thread.currentThread().isAlive()) {
-                    try {
-                        String msg = mMessageQueue.take();
-                        sendMessage("Msg", msg);
-                    } catch (InterruptedException ie) {
-                        Log.d(CLIENT_TAG, "Message sending loop interrupted, exiting");
-                    }
-                }
-                */
             }
         }
 
@@ -299,12 +255,7 @@ public class ChatConnection {
             @Override
             public void run() {
 
-                //BufferedReader input;
                 try {
-                    /*
-                    input = new BufferedReader(new InputStreamReader(
-                            sv_soc.getInputStream()));
-                    */
                     input = new ObjectInputStream(sv_soc.getInputStream());
                     while (!Thread.currentThread().isInterrupted()) {
                         Msg message = (Msg) input.readObject();
@@ -315,19 +266,10 @@ public class ChatConnection {
                                 break;
                             }
                             if (NsdChatActivity.mUserChoice.equals("server")) {
-                                if (message.getKey().equals("passclient")) {
+                                if (message.getKey().equals("clientpass")) {
                                     if (!NsdChatActivity.server_pass.equals(message.getMessage())) {
-                                        /*
-                                        ((NsdChatActivity)mContext).runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        */
                                         Log.d(TAG, "pass client: " + message.getMessage());
                                         sendMessage(createMessage("passcheck", "mismatch"));
-                                        //commonChats.remove(CommonChat.this);
-                                        //Thread.currentThread().interrupt();
                                     }
                                     else {
                                         pass_verified = true;
@@ -335,24 +277,24 @@ public class ChatConnection {
                                         sendMessage(createMessage("contest_details", NsdChatActivity.con_details_str));
                                     }
                                 }
+                                else if (message.getKey().equals("clientname")) {
+                                    username = message.getMessage();
+                                }
+                                else if (message.getKey().equals("clientemail")) {
+                                    email = message.getMessage();
+                                }
+                                else if (message.getKey().equals("clientphno")) {
+                                    ph_no = message.getMessage();
+                                }
                             }
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
                                         pass_verified = true;
-                                        /*
-                                        ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
-                                            public void run() {
-                                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.GONE);
-                                                Toast.makeText(mContext, "Password matched successfully!", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                                        */
                                     }
                                     else {
                                         ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                             public void run() {
-                                                ((NsdChatActivity) mContext).progressBar.setVisibility(View.GONE);
                                                 Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
@@ -370,6 +312,13 @@ public class ChatConnection {
                                 }
                                 else if(message.getKey().equals("contest_details")) {
                                     intent.putExtra("contest_details", message.getMessage());
+                                }
+                                else if(message.getKey().equals("questionorder")) {
+                                    contest_ended = true;
+                                    questionOrder = message.getArrayQuesAns();
+                                }
+                                else if(message.getKey().equals("markedanswer")) {
+                                    answerMarked = message.getArrayQuesAns();
                                 }
                             }
                         }
@@ -396,24 +345,12 @@ public class ChatConnection {
                 if (sv_soc == null) {
                     Log.d(CLIENT_TAG, "Socket is null!");
                 }
-                /*
-                else if (sv_soc.getOutputStream() == null) {
-
-                    Log.d(CLIENT_TAG, "Socket output stream is null!");
-                }
-
-
-                PrintWriter out = new PrintWriter(
-                        new BufferedWriter(
-                                new OutputStreamWriter(sv_soc.getOutputStream())), true);
-                */
                 if(out == null)
                     out = new ObjectOutputStream(sv_soc.getOutputStream());
 
                 out.writeObject(m);
                 out.flush();
                 out.reset();
-                //updateMessages(Msg, true);
             } catch (UnknownHostException e) {
                 Log.d(CLIENT_TAG, "Unknown Host", e);
             } catch (IOException e) {

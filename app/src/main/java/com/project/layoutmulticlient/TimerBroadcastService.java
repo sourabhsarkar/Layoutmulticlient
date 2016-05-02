@@ -24,7 +24,10 @@ public class TimerBroadcastService extends Service {
         super.onCreate();
 
         Log.i(TAG, "Starting timer...");
-        timer = ContestRules.timer;
+        if(NsdChatActivity.mUserChoice.equals("client"))
+            timer = ContestRules.timer;
+        else
+            timer = ContestUpload.millSecs;
         countDownTimer = new CountDownTimer(timer, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {

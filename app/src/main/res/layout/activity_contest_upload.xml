@@ -27,7 +27,7 @@
             android:layout_height="wrap_content">
 
             <EditText
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
@@ -37,8 +37,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_toLeftOf="@+id/textView3"
                 android:layout_toStartOf="@+id/textView3"
-                android:layout_marginRight="50dp"
-                android:layout_marginEnd="50dp" />
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
                 android:layout_centerHorizontal="true" />
 
             <EditText
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="number"
                 android:ems="10"
@@ -61,8 +61,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_toRightOf="@+id/textView3"
                 android:layout_toEndOf="@+id/textView3"
-                android:layout_marginLeft="50dp"
-                android:layout_marginStart="50dp" />
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp" />
 
 
         </RelativeLayout>

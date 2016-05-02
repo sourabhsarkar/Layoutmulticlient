@@ -13,7 +13,7 @@ public class Msg implements Serializable {
     private String message = null;
 
     private ArrayList<Question> questionArray = null;
-    //private InetAddress address = null;
+    private int arrayQuesAns[];
 
     public Msg(String key, String msg) {
         this.key = key;
@@ -25,15 +25,14 @@ public class Msg implements Serializable {
         questionArray = q;
     }
 
+    public Msg(String key, int[] qa) {
+        this.key = key;
+        arrayQuesAns = qa;
+    }
+
     public String getKey() {
         return key;
     }
-
-    /*
-    public InetAddress getAddress() {
-        return address;
-    }
-    */
 
     public String getMessage() {
         return message;
@@ -43,4 +42,8 @@ public class Msg implements Serializable {
         return questionArray;
     }
 
+
+    public int[] getArrayQuesAns() {
+        return arrayQuesAns;
+    }
 }

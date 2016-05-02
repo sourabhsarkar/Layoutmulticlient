@@ -29,13 +29,13 @@ public class DisplayQuestions extends AppCompatActivity {
     TextView quesStatement, timerTextView;
     RadioGroup radioGroup;
     RadioButton radioButton1, radioButton2, radioButton3, radioButton4;
-    Button next_btn;
+    Button next_btn, sub_btn;
     Random rand = new Random();
     boolean set[];
     boolean doubleBackToExitPressedOnce = false;
     Intent timerIntent;
-    int count = 0, i = 0;
-    long mins = 0, secs = 0;
+    int count, i, quesOrder[], answerMarked[];
+    long mins, secs;
     String time;
 
     @Override
@@ -52,24 +52,24 @@ public class DisplayQuestions extends AppCompatActivity {
         radioButton3 = (RadioButton) findViewById(R.id.option3);
         radioButton4 = (RadioButton) findViewById(R.id.option4);
         next_btn = (Button) findViewById(R.id.nextButton);
+        sub_btn = (Button) findViewById(R.id.submitButton);
+        sub_btn.setVisibility(View.GONE);
 
         message = (Msg) getIntent().getSerializableExtra("quesMsg");
         questions = message.getQuestionArray();
         quesNo = questions.size();
         set = new boolean[quesNo];
+        quesOrder = new int[quesNo];
+        answerMarked = new int[quesNo];
 
         i = rand.nextInt(quesNo);
         set[i] = true;
-        count++;
-        if (questions.size() > i) {
-            quesStatement.setText(questions.get(i).quesStatement);
-            radioButton1.setText(questions.get(i).option1);
-            radioButton2.setText(questions.get(i).option2);
-            radioButton3.setText(questions.get(i).option3);
-            radioButton4.setText(questions.get(i).option4);
-        } else {
-            Log.d(TAG, "Ques list less than index chosen!");
-        }
+        quesOrder[count++] = i;
+        quesStatement.setText(questions.get(i).quesStatement);
+        radioButton1.setText(questions.get(i).option1);
+        radioButton2.setText(questions.get(i).option2);
+        radioButton3.setText(questions.get(i).option3);
+        radioButton4.setText(questions.get(i).option4);
         timerIntent = new Intent(this, TimerBroadcastService.class);
         startService(timerIntent);
         Log.i(TAG, "Started service");
@@ -77,7 +77,60 @@ public class DisplayQuestions extends AppCompatActivity {
 
     public void nextClicked(View view) {
 
+        checkMarkedAnswer();
+
+        if (count < quesNo) {
+
+            int j = 0;
+            i = rand.nextInt(quesNo);
+            while (set[i])
+                i = rand.nextInt(quesNo);
+            set[i] = true;
+            quesOrder[count++] = i;
+
+            radioGroup.clearCheck();
+            quesStatement.setText(questions.get(i).quesStatement);
+            radioButton1.setText(questions.get(i).option1);
+            radioButton2.setText(questions.get(i).option2);
+            radioButton3.setText(questions.get(i).option3);
+            radioButton4.setText(questions.get(i).option4);
+
+            if(count == quesNo) {
+                next_btn.setVisibility(View.GONE);
+                sub_btn.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    public void submitClicked(View view) {
+        checkMarkedAnswer();
+        int marks = 0;
+        for (int y =0; y < count; y++) {
+            if(questions.get(quesOrder[y]).correctOption == answerMarked[y]) {
+                marks++;
+            }
+        }
+        NsdChatActivity.mConnection.sendAllMessage("questionorder", quesOrder);
+        NsdChatActivity.mConnection.sendAllMessage("markedanswer", answerMarked);
+        Intent intent = new Intent(this, ResultContestant.class);
+        intent.putExtra("result",String.valueOf(marks) + " out of " + String.valueOf(quesNo));
+        startActivity(intent);
+    }
+
+    private void checkMarkedAnswer() {
         int check = radioGroup.getCheckedRadioButtonId();
+
+        if (check == -1) {
+            answerMarked[count - 1] = -1;
+        } else if (check == R.id.option1) {
+            answerMarked[count - 1] = 1;
+        } else if (check == R.id.option2) {
+            answerMarked[count - 1] = 2;
+        } else if (check == R.id.option3) {
+            answerMarked[count - 1] = 3;
+        } else if (check == R.id.option4) {
+            answerMarked[count - 1] = 4;
+        }
 
         if (check == -1) {
             Toast.makeText(this, "Not attempted", Toast.LENGTH_SHORT).show();
@@ -92,27 +145,6 @@ public class DisplayQuestions extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Wrong answer!", Toast.LENGTH_SHORT).show();
         }
-
-        if (count < quesNo) {
-
-            int j = 0;
-            i = rand.nextInt(quesNo);
-            while (set[i])
-                i = rand.nextInt(quesNo);
-            set[i] = true;
-            count++;
-
-            if (questions.size() > i) {
-                radioGroup.clearCheck();
-                quesStatement.setText(questions.get(i).quesStatement);
-                radioButton1.setText(questions.get(i).option1);
-                radioButton2.setText(questions.get(i).option2);
-                radioButton3.setText(questions.get(i).option3);
-                radioButton4.setText(questions.get(i).option4);
-            } else {
-                Log.d(TAG, "Ques list less than index chosen!");
-            }
-        }
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -120,8 +152,10 @@ public class DisplayQuestions extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getExtras() != null) {
                 long millisUntilFinished = intent.getLongExtra("countdown", 0);
-                if(millisUntilFinished == 0)
-                    next_btn.setEnabled(false);
+                if(millisUntilFinished == 0) {
+                    next_btn.setVisibility(View.GONE);
+                    sub_btn.setVisibility(View.VISIBLE);
+                }
                 secs = millisUntilFinished/1000;
                 mins = secs / 60;
                 secs -= mins * 60;

@@ -21,12 +21,11 @@ public class NsdChatActivity extends Activity {
     private EditText con_join_name, con_join_pass;
     private EditText part_name, part_ph, part_email;
     public static Button btn_join;
-    protected ProgressBar progressBar;
 
     public static final String TAG = "NsdChat";
     public static String mUserChoice;
     public static String mServiceName;
-    public static String server_pass, client_pass, con_details_str;
+    public static String server_pass, client_pass, clientName, clientEmail, clientPhNo, con_details_str;
 
     public static ChatConnection mConnection;
 
@@ -55,7 +54,6 @@ public class NsdChatActivity extends Activity {
             part_ph = (EditText)findViewById(R.id.part_ph);
             part_email = (EditText)findViewById(R.id.part_email);
             btn_join = (Button)findViewById(R.id.btn_join);
-            progressBar = (ProgressBar)findViewById(R.id.progress_spinner);
             setVisibilityButton(false);
         }
     }
@@ -98,6 +96,9 @@ public class NsdChatActivity extends Activity {
     public void join_contest(View v)
     {
         client_pass = con_join_pass.getText().toString();
+        clientName = part_name.getText().toString();
+        clientEmail = part_email.getText().toString();
+        clientPhNo = part_ph.getText().toString();
         if(con_join_name.getText().toString().equals("") || client_pass.equals("")) {
             Toast.makeText(this, "One or more fields is empty", Toast.LENGTH_LONG).show();
         }
