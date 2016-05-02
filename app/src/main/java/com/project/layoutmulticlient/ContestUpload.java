@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class ContestUpload extends Activity {
 
     public final String TAG = ContestUpload.class.getSimpleName();
-    private Uri uri;
     private ArrayList<Question> questionArrayList = new ArrayList<Question>();
     EditText timerHours, timerMins;
     Button addQuesBtn, sendBtn;
@@ -60,7 +59,7 @@ public class ContestUpload extends Activity {
             if (data == null) {
                 Toast.makeText(this, "No file found!", Toast.LENGTH_SHORT).show();
             } else {
-                uri = data.getData();
+                Uri uri = data.getData();
                 Log.i(TAG, "Excel URI: " + uri);
                 Toast.makeText(this, uri.toString(), Toast.LENGTH_SHORT).show();
                 questionArrayList = ReadExcelFile.readExcelFile(uri);
