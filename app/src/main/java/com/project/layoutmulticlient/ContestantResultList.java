@@ -1,5 +1,6 @@
 package com.project.layoutmulticlient;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +13,7 @@ public class ContestantResultList extends AppCompatActivity {
 
     ListView resultList;
     public static ArrayAdapter<String> adapter;
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,5 +35,11 @@ public class ContestantResultList extends AppCompatActivity {
             }
         };
         resultList.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        context = this;
     }
 }

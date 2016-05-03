@@ -188,7 +188,6 @@ public class ChatConnection {
         private Thread mRecThread;
         Socket sv_soc = null;
 
-        ObjectInputStream input = null;
         ObjectOutputStream out = null;
 
         Intent intent = new Intent(mContext, ContestRules.class);
@@ -243,6 +242,7 @@ public class ChatConnection {
         //Receiving Thread
         class ReceivingThread implements Runnable {
 
+            ObjectInputStream input = null;
             @Override
             public void run() {
 
@@ -282,7 +282,12 @@ public class ChatConnection {
                                     score = Integer.parseInt(message.getMessage());
                                     scoreList.add(score);
                                     usernameList.add(username);
-                                    ContestantResultList.adapter.notifyDataSetChanged();
+                                    if(ContestantResultList.context != null)
+                                        ((ContestantResultList) ContestantResultList.context).runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                ContestantResultList.adapter.notifyDataSetChanged();
+                                            }
+                                        });
                                 }
                             }
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
