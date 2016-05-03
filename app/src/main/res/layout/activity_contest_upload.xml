@@ -82,5 +82,13 @@
                 android:id="@+id/sendQuesTimerButton"
                 android:layout_marginTop="25dp"/>
 
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="LeaderBoard"
+            android:id="@+id/leaderboardButton"
+            android:onClick="showLeaderBoard"
+            android:layout_marginTop="25dp" />
+
     </LinearLayout>
 </LinearLayout>

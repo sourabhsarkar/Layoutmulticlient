@@ -3,14 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResultContestant">
+    tools:context="com.project.layoutmulticlient.ContestantResultList">
 
     <include layout="@layout/toolbar"
         android:id="@+id/toolbar"/>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/frameResult">
-    </FrameLayout>
+        android:orientation="vertical"
+        android:layout_below="@+id/toolbar">
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/contestantResultListView"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+
 </RelativeLayout>

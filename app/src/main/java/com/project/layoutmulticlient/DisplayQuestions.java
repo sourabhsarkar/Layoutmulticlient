@@ -110,8 +110,7 @@ public class DisplayQuestions extends AppCompatActivity {
                 marks++;
             }
         }
-        NsdChatActivity.mConnection.sendAllMessage("questionorder", quesOrder);
-        NsdChatActivity.mConnection.sendAllMessage("markedanswer", answerMarked);
+        NsdChatActivity.mConnection.sendAllMessage("score", String.valueOf(marks));
         Intent intent = new Intent(this, ResultContestant.class);
         intent.putExtra("result",String.valueOf(marks) + " out of " + String.valueOf(quesNo));
         startActivity(intent);

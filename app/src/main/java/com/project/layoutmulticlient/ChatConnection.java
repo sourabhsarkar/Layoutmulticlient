@@ -20,7 +20,8 @@ public class ChatConnection {
 
     private ChatServer mChatServer;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
-    ArrayList<Question> quesList = new ArrayList<Question>();
+    ArrayList<Integer> scoreList = new ArrayList<Integer>();
+    ArrayList<String> usernameList = new ArrayList<String>();
 
     //for passsing normal messages
     public Msg createMessage(String key, String message) {
@@ -30,10 +31,6 @@ public class ChatConnection {
     //for passing questions
     public Msg createMessage(String key, ArrayList<Question> questions) {
         return new Msg(key,questions);
-    }
-
-    public Msg createMessage(String key, int qa[]) {
-        return new Msg(key,qa);
     }
 
     private static final String TAG = "ChatConnection";
@@ -79,13 +76,6 @@ public class ChatConnection {
         for (CommonChat chatClient : commonChats) {
             if(chatClient.pass_verified)
                 chatClient.sendMessage(createMessage(key, quesList));
-        }
-    }
-
-    public void sendAllMessage(String key, int qa[]) {
-        for (CommonChat chatClient : commonChats) {
-            if(chatClient.pass_verified)
-                chatClient.sendMessage(createMessage(key, qa));
         }
     }
 
@@ -192,8 +182,7 @@ public class ChatConnection {
         public boolean ques_received = false;
         public boolean contest_ended = false;
 
-        public int questionOrder[];
-        public int answerMarked[];
+        public int score;
 
         private Thread mSendThread;
         private Thread mRecThread;
@@ -288,6 +277,13 @@ public class ChatConnection {
                                 else if (message.getKey().equals("clientphno")) {
                                     ph_no = message.getMessage();
                                 }
+                                else if(message.getKey().equals("score")) {
+                                    contest_ended = true;
+                                    score = Integer.parseInt(message.getMessage());
+                                    scoreList.add(score);
+                                    usernameList.add(username);
+                                    ContestantResultList.adapter.notifyDataSetChanged();
+                                }
                             }
                             else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
@@ -314,13 +310,6 @@ public class ChatConnection {
                                 }
                                 else if(message.getKey().equals("contest_details")) {
                                     intent.putExtra("contest_details", message.getMessage());
-                                }
-                                else if(message.getKey().equals("questionorder")) {
-                                    contest_ended = true;
-                                    questionOrder = message.getArrayQuesAns();
-                                }
-                                else if(message.getKey().equals("markedanswer")) {
-                                    answerMarked = message.getArrayQuesAns();
                                 }
                             }
                         }

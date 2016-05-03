@@ -81,9 +81,13 @@ public class ContestUpload extends Activity {
             tHrs = Integer.parseInt(strHrs);
             tMins = Integer.parseInt(strMins);
 
-            if (tMins >= 60 || tMins < 0) {
+            if (tMins >= 60) {
                 Toast.makeText(this, "Minutes must be within 0 to 59!", Toast.LENGTH_SHORT).show();
-            } else {
+            }
+            else if(tHrs == 0 && tMins == 0) {
+                Toast.makeText(this, "Contest duration should be greater than 0 mins", Toast.LENGTH_SHORT).show();
+            }
+            else {
                 if(!timerStarted) {
                     timerIntent = new Intent(this, TimerBroadcastService.class);
                     startService(timerIntent);
@@ -96,6 +100,11 @@ public class ContestUpload extends Activity {
                 addQuesBtn.setEnabled(false);
             }
         }
+    }
+
+    public void showLeaderBoard(View view) {
+        Intent intent = new Intent(this, ContestantResultList.class);
+        startActivity(intent);
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {

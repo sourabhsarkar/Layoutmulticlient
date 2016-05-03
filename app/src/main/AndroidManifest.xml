@@ -15,12 +15,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".NsdChatActivity"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".WifiLandingPage"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,18 +29,23 @@
         </activity>
         <activity
             android:name=".ContestUpload"
-            android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".DisplayQuestions"
-            android:screenOrientation="portrait"/>
-
-        <service android:name=".TimerBroadcastService"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".ContestRules"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".DisplayQuestions"
             android:screenOrientation="portrait" />
-        <activity android:name=".ResultContestant"
-            android:screenOrientation="portrait"/>
+
+        <service
+            android:name=".TimerBroadcastService"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ContestRules"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ResultContestant"
+            android:screenOrientation="portrait" />
+        <activity android:name=".ContestantResultList"></activity>
     </application>
 
 </manifest>

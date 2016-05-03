@@ -13,7 +13,6 @@ public class Msg implements Serializable {
     private String message = null;
 
     private ArrayList<Question> questionArray = null;
-    private int arrayQuesAns[];
 
     public Msg(String key, String msg) {
         this.key = key;
@@ -23,11 +22,6 @@ public class Msg implements Serializable {
     public Msg(String key, ArrayList<Question> q) {
         this.key = key;
         questionArray = q;
-    }
-
-    public Msg(String key, int[] qa) {
-        this.key = key;
-        arrayQuesAns = qa;
     }
 
     public String getKey() {
@@ -40,10 +34,5 @@ public class Msg implements Serializable {
 
     public ArrayList<Question> getQuestionArray() {
         return questionArray;
-    }
-
-
-    public int[] getArrayQuesAns() {
-        return arrayQuesAns;
     }
 }
