@@ -28,6 +28,7 @@ public class ContestantResultList extends AppCompatActivity {
                 View view = super.getView(position, convertView, parent);
                 TextView text1 = (TextView) view.findViewById(android.R.id.text1);
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                text2.setTextSize(20);
 
                 text1.setText(NsdChatActivity.mConnection.usernameList.get(position));
                 text2.setText(String.valueOf(NsdChatActivity.mConnection.scoreList.get(position)));

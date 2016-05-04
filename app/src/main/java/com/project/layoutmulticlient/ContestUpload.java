@@ -149,8 +149,10 @@ public class ContestUpload extends Activity {
     @Override
     public void onDestroy() {
         try {
-            stopService(timerIntent);
-            Log.i(TAG, "Stopped service");
+            if (timerIntent != null) {
+                stopService(timerIntent);
+                Log.i(TAG, "Stopped service");
+            }
         }
         catch (Exception e) {
             Log.d(TAG, e.getMessage());

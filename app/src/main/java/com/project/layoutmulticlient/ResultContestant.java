@@ -12,6 +12,7 @@ public class ResultContestant extends AppCompatActivity {
 
     ScoreDisplayFragment scoreDisplayFragment;
     ReviewListFragment reviewListFragment;
+    int quesOrder[], answerMarked[];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,8 @@ public class ResultContestant extends AppCompatActivity {
 
         showScoreDisplayFragment();
         scoreDisplayFragment.setScoreText(getIntent().getStringExtra("result"));
+        quesOrder = getIntent().getIntArrayExtra("quesorder");
+        answerMarked = getIntent().getIntArrayExtra("answermarked");
     }
 
     public void showScoreDisplayFragment() {
@@ -33,8 +36,15 @@ public class ResultContestant extends AppCompatActivity {
     }
 
     public void showReviewListFragment() {
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        reviewListFragment.setQuestions(DisplayQuestions.questions);
+        reviewListFragment.setQuestionOrder(quesOrder);
+        reviewListFragment.setAnswerMarked(answerMarked);
+
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.add(R.id.frameResult, reviewListFragment);
+        fragmentTransaction.replace(R.id.frameResult, reviewListFragment);
         fragmentTransaction.commit();
+
     }
 }

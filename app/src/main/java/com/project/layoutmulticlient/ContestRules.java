@@ -37,6 +37,7 @@ public class ContestRules extends AppCompatActivity {
     public void startContest(View view) {
         contestStarted = true;
         Intent intent = new Intent(this, DisplayQuestions.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         intent.putExtra("quesMsg", message);
         startActivity(intent);
     }

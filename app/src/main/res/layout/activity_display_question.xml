@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
+            android:text="Question Statement"
             android:id="@+id/quesStatement"
             android:layout_gravity="center_horizontal"
             android:layout_below="@+id/timerTextView" />
@@ -71,9 +71,10 @@
             android:text="Next"
             android:id="@+id/nextButton"
             android:onClick="nextClicked"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/radioGroupOptions"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="55dp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -81,8 +82,8 @@
             android:text="Submit"
             android:id="@+id/submitButton"
             android:onClick="submitClicked"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/nextButton"/>
 
     </RelativeLayout>
 </LinearLayout>

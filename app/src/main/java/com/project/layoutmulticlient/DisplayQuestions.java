@@ -25,7 +25,7 @@ public class DisplayQuestions extends AppCompatActivity {
 
     protected Msg message;
     protected int quesNo;
-    protected ArrayList<Question> questions = new ArrayList<Question>();
+    public static ArrayList<Question> questions;
     TextView quesStatement, timerTextView;
     RadioGroup radioGroup;
     RadioButton radioButton1, radioButton2, radioButton3, radioButton4;
@@ -34,7 +34,7 @@ public class DisplayQuestions extends AppCompatActivity {
     boolean set[];
     boolean doubleBackToExitPressedOnce = false;
     Intent timerIntent;
-    int count, i, quesOrder[], answerMarked[];
+    int count, i, x, quesOrder[], answerMarked[];
     long mins, secs;
     String time;
 
@@ -62,14 +62,24 @@ public class DisplayQuestions extends AppCompatActivity {
         quesOrder = new int[quesNo];
         answerMarked = new int[quesNo];
 
-        i = rand.nextInt(quesNo);
-        set[i] = true;
-        quesOrder[count++] = i;
-        quesStatement.setText(questions.get(i).quesStatement);
-        radioButton1.setText(questions.get(i).option1);
-        radioButton2.setText(questions.get(i).option2);
-        radioButton3.setText(questions.get(i).option3);
-        radioButton4.setText(questions.get(i).option4);
+        while(count < quesNo) {
+            i = rand.nextInt(quesNo);
+            while (set[i])
+                i = rand.nextInt(quesNo);
+            set[i] = true;
+            quesOrder[count++] = i;
+        }
+
+        quesStatement.setText(questions.get(quesOrder[x]).quesStatement);
+        radioButton1.setText(questions.get(quesOrder[x]).option1);
+        radioButton2.setText(questions.get(quesOrder[x]).option2);
+        radioButton3.setText(questions.get(quesOrder[x]).option3);
+        radioButton4.setText(questions.get(quesOrder[x]).option4);
+        x++;
+        if(x == quesNo) {
+            next_btn.setVisibility(View.GONE);
+            sub_btn.setVisibility(View.VISIBLE);
+        }
         timerIntent = new Intent(this, TimerBroadcastService.class);
         startService(timerIntent);
         Log.i(TAG, "Started service");
@@ -79,23 +89,16 @@ public class DisplayQuestions extends AppCompatActivity {
 
         checkMarkedAnswer();
 
-        if (count < quesNo) {
-
-            int j = 0;
-            i = rand.nextInt(quesNo);
-            while (set[i])
-                i = rand.nextInt(quesNo);
-            set[i] = true;
-            quesOrder[count++] = i;
-
+        if (x < quesNo) {
             radioGroup.clearCheck();
-            quesStatement.setText(questions.get(i).quesStatement);
-            radioButton1.setText(questions.get(i).option1);
-            radioButton2.setText(questions.get(i).option2);
-            radioButton3.setText(questions.get(i).option3);
-            radioButton4.setText(questions.get(i).option4);
+            quesStatement.setText(questions.get(quesOrder[x]).quesStatement);
+            radioButton1.setText(questions.get(quesOrder[x]).option1);
+            radioButton2.setText(questions.get(quesOrder[x]).option2);
+            radioButton3.setText(questions.get(quesOrder[x]).option3);
+            radioButton4.setText(questions.get(quesOrder[x]).option4);
+            x++;
 
-            if(count == quesNo) {
+            if(x == quesNo) {
                 next_btn.setVisibility(View.GONE);
                 sub_btn.setVisibility(View.VISIBLE);
             }
@@ -105,7 +108,7 @@ public class DisplayQuestions extends AppCompatActivity {
     public void submitClicked(View view) {
         checkMarkedAnswer();
         int marks = 0;
-        for (int y =0; y < count; y++) {
+        for (int y =0; y < x; y++) {
             if(questions.get(quesOrder[y]).correctOption == answerMarked[y]) {
                 marks++;
             }
@@ -113,6 +116,8 @@ public class DisplayQuestions extends AppCompatActivity {
         NsdChatActivity.mConnection.sendAllMessage("score", String.valueOf(marks));
         Intent intent = new Intent(this, ResultContestant.class);
         intent.putExtra("result",String.valueOf(marks) + " out of " + String.valueOf(quesNo));
+        intent.putExtra("quesorder", quesOrder);
+        intent.putExtra("answermarked", answerMarked);
         startActivity(intent);
     }
 
@@ -120,29 +125,15 @@ public class DisplayQuestions extends AppCompatActivity {
         int check = radioGroup.getCheckedRadioButtonId();
 
         if (check == -1) {
-            answerMarked[count - 1] = -1;
+            answerMarked[x - 1] = -1;
         } else if (check == R.id.option1) {
-            answerMarked[count - 1] = 1;
+            answerMarked[x - 1] = 1;
         } else if (check == R.id.option2) {
-            answerMarked[count - 1] = 2;
+            answerMarked[x - 1] = 2;
         } else if (check == R.id.option3) {
-            answerMarked[count - 1] = 3;
+            answerMarked[x - 1] = 3;
         } else if (check == R.id.option4) {
-            answerMarked[count - 1] = 4;
-        }
-
-        if (check == -1) {
-            Toast.makeText(this, "Not attempted", Toast.LENGTH_SHORT).show();
-        } else if (check == R.id.option1 && questions.get(i).correctOption == 1) {
-            Toast.makeText(this, "Correct answer!", Toast.LENGTH_SHORT).show();
-        } else if (check == R.id.option2 && questions.get(i).correctOption == 2) {
-            Toast.makeText(this, "Correct answer!", Toast.LENGTH_SHORT).show();
-        } else if (check == R.id.option3 && questions.get(i).correctOption == 3) {
-            Toast.makeText(this, "Correct answer!", Toast.LENGTH_SHORT).show();
-        } else if (check == R.id.option4 && questions.get(i).correctOption == 4) {
-            Toast.makeText(this, "Correct answer!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Wrong answer!", Toast.LENGTH_SHORT).show();
+            answerMarked[x - 1] = 4;
         }
     }
 
