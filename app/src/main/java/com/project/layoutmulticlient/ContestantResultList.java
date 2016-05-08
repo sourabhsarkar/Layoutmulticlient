@@ -30,7 +30,7 @@ public class ContestantResultList extends AppCompatActivity {
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
                 text2.setTextSize(20);
 
-                text1.setText(NsdChatActivity.mConnection.scoreList.get(position).getUsername());
+                text1.setText(String.valueOf(position+1)+ ". " + NsdChatActivity.mConnection.scoreList.get(position).getUsername());
                 text2.setText(String.valueOf(NsdChatActivity.mConnection.scoreList.get(position).getMarks()));
                 return view;
             }

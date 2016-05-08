@@ -44,11 +44,16 @@ public class ReviewAdapter extends ArrayAdapter<Question>{
         radioButton3 = (RadioButton) convertView.findViewById(R.id.option3);
         radioButton4 = (RadioButton) convertView.findViewById(R.id.option4);
 
-        tvQuesSt.setText(questions.get(quesOrder[position]).quesStatement);
+        tvQuesSt.setText(String.valueOf(position+1) + ". " + questions.get(quesOrder[position]).quesStatement);
         radioButton1.setText(questions.get(quesOrder[position]).option1);
         radioButton2.setText(questions.get(quesOrder[position]).option2);
         radioButton3.setText(questions.get(quesOrder[position]).option3);
         radioButton4.setText(questions.get(quesOrder[position]).option4);
+
+        radioButton1.setChecked(false);
+        radioButton2.setChecked(false);
+        radioButton3.setChecked(false);
+        radioButton4.setChecked(false);
 
         radioButton1.setEnabled(false);
         radioButton2.setEnabled(false);
@@ -72,6 +77,7 @@ public class ReviewAdapter extends ArrayAdapter<Question>{
         }
         else if(answerMarked[position] == -1 || answerMarked[position] == 0) {
             //Do nothing
+            convertView.setBackgroundColor(Color.WHITE);
         }
         else {
             convertView.setBackgroundColor(Color.argb(50,255,0,0));

@@ -70,7 +70,7 @@ public class DisplayQuestions extends AppCompatActivity {
             quesOrder[count++] = i;
         }
 
-        quesStatement.setText(questions.get(quesOrder[x]).quesStatement);
+        quesStatement.setText(String.valueOf(x+1) + ". " + questions.get(quesOrder[x]).quesStatement);
         radioButton1.setText(questions.get(quesOrder[x]).option1);
         radioButton2.setText(questions.get(quesOrder[x]).option2);
         radioButton3.setText(questions.get(quesOrder[x]).option3);
@@ -89,24 +89,24 @@ public class DisplayQuestions extends AppCompatActivity {
 
         checkMarkedAnswer();
 
-        if (x < quesNo) {
-            radioGroup.clearCheck();
-            quesStatement.setText(questions.get(quesOrder[x]).quesStatement);
-            radioButton1.setText(questions.get(quesOrder[x]).option1);
-            radioButton2.setText(questions.get(quesOrder[x]).option2);
-            radioButton3.setText(questions.get(quesOrder[x]).option3);
-            radioButton4.setText(questions.get(quesOrder[x]).option4);
-            x++;
+        radioGroup.clearCheck();
+        quesStatement.setText(String.valueOf(x+1) + ". " + questions.get(quesOrder[x]).quesStatement);
+        radioButton1.setText(questions.get(quesOrder[x]).option1);
+        radioButton2.setText(questions.get(quesOrder[x]).option2);
+        radioButton3.setText(questions.get(quesOrder[x]).option3);
+        radioButton4.setText(questions.get(quesOrder[x]).option4);
+        x++;
 
-            if(x == quesNo) {
-                next_btn.setVisibility(View.GONE);
-                sub_btn.setVisibility(View.VISIBLE);
-            }
+        if(x == quesNo) {
+            next_btn.setVisibility(View.GONE);
+            sub_btn.setVisibility(View.VISIBLE);
         }
     }
 
     public void submitClicked(View view) {
+
         checkMarkedAnswer();
+
         int marks = 0;
         for (int y =0; y < x; y++) {
             if(questions.get(quesOrder[y]).correctOption == answerMarked[y]) {

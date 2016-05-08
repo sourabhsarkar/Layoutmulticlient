@@ -23,13 +23,13 @@ public class ResultContestant extends AppCompatActivity {
         scoreDisplayFragment = new ScoreDisplayFragment();
         reviewListFragment = new ReviewListFragment();
 
-        showScoreDisplayFragment();
-        scoreDisplayFragment.setScoreText(getIntent().getStringExtra("result"));
         quesOrder = getIntent().getIntArrayExtra("quesorder");
         answerMarked = getIntent().getIntArrayExtra("answermarked");
+        showScoreDisplayFragment();
     }
 
     public void showScoreDisplayFragment() {
+        scoreDisplayFragment.setScoreText(getIntent().getStringExtra("result"));
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.frameResult, scoreDisplayFragment);
         fragmentTransaction.commit();

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -20,13 +21,14 @@ public class ContestUpload extends Activity {
 
     public final String TAG = ContestUpload.class.getSimpleName();
     private ArrayList<Question> questionArrayList = new ArrayList<Question>();
-    EditText timerHours, timerMins;
+    EditText timerHours, timerMins, timerSecs;
+    TextView timerTv;
     Button addQuesBtn, sendBtn;
     Intent timerIntent;
-    String strHrs, strMins;
-    int tHrs, tMins;
+    String strHrs, strMins, strSecs;
+    long tHrs, tMins, tSecs;
     public static long millSecs;
-    long mins, hours;
+    long secs, mins, hours;
     boolean timerStarted;
 
     @Override
@@ -41,12 +43,17 @@ public class ContestUpload extends Activity {
 
         timerHours = (EditText) findViewById(R.id.timerHours);
         timerMins = (EditText) findViewById(R.id.timerMins);
+        timerSecs = (EditText) findViewById(R.id.timerSecs);
+        timerTv = (TextView) findViewById(R.id.textView5);
+
+        timerSecs.setVisibility(View.GONE);
+        timerTv.setVisibility(View.GONE);
     }
 
     public void addQues(View view) {
         Intent chooseExcelIntent = new Intent(Intent.ACTION_GET_CONTENT);
         chooseExcelIntent.setType("application/vnd.ms-excel");
-        startActivityForResult(chooseExcelIntent, 1);
+        startActivityForResult(chooseExcelIntent, 101);
     }
 
     @Override
@@ -55,7 +62,7 @@ public class ContestUpload extends Activity {
 
         Log.d(TAG, "Result");
 
-        if (resultCode == RESULT_OK && requestCode == 1) {
+        if (resultCode == RESULT_OK && requestCode == 101) {
             if (data == null) {
                 Toast.makeText(this, "No file found!", Toast.LENGTH_SHORT).show();
             } else {
@@ -74,17 +81,23 @@ public class ContestUpload extends Activity {
     public void sendQues(View view) {
         strHrs = timerHours.getText().toString();
         strMins = timerMins.getText().toString();
+        strSecs = timerSecs.getText().toString();
 
         if(strHrs.equals("") || strMins.equals(""))
             Toast.makeText(this, "Timer not set", Toast.LENGTH_SHORT).show();
         else {
-            tHrs = Integer.parseInt(strHrs);
-            tMins = Integer.parseInt(strMins);
+            tHrs = Long.parseLong(strHrs);
+            tMins = Long.parseLong(strMins);
+            if(strSecs.equals("")){
+                tSecs = 0L;
+            }
+            else
+                tSecs = Long.parseLong(strSecs);
 
             if (tMins >= 60) {
                 Toast.makeText(this, "Minutes must be within 0 to 59!", Toast.LENGTH_SHORT).show();
             }
-            else if(tHrs == 0 && tMins == 0) {
+            else if(tHrs == 0 && tMins == 0 && tSecs == 0) {
                 Toast.makeText(this, "Contest duration should be greater than 0 mins", Toast.LENGTH_SHORT).show();
             }
             else {
@@ -92,9 +105,12 @@ public class ContestUpload extends Activity {
                     timerIntent = new Intent(this, TimerBroadcastService.class);
                     startService(timerIntent);
                     timerStarted = true;
+                    timerSecs.setVisibility(View.VISIBLE);
+                    timerTv.setVisibility(View.VISIBLE);
+                    timerSecs.setEnabled(false);
                     Log.i(TAG, "Started service");
                 }
-                millSecs = (tHrs * 60 + tMins) * 60000;
+                millSecs = ((tHrs * 60 + tMins) * 60 + secs)*1000;
                 NsdChatActivity.mConnection.sendAllMessage("timer", String.valueOf(millSecs));
                 NsdChatActivity.mConnection.sendAllMessage("ques", questionArrayList);
                 addQuesBtn.setEnabled(false);
@@ -112,11 +128,14 @@ public class ContestUpload extends Activity {
         public void onReceive(Context context, Intent intent) {
             if (intent.getExtras() != null) {
                 long millisUntilFinished = intent.getLongExtra("countdown", 0);
-                mins = millisUntilFinished/60000;
+                secs = millisUntilFinished / 1000;
+                mins = secs / 60;
+                secs -= mins * 60;
                 hours = mins / 60;
                 mins -= hours * 60;
                 timerHours.setText(String.valueOf(hours));
                 timerMins.setText(String.valueOf(mins));
+                timerSecs.setText(String.valueOf(secs));
             }
         }
     };
