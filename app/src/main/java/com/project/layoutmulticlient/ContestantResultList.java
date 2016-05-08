@@ -12,7 +12,7 @@ import android.widget.TextView;
 public class ContestantResultList extends AppCompatActivity {
 
     ListView resultList;
-    public static ArrayAdapter<String> adapter;
+    public static ArrayAdapter<Score> adapter;
     public static Context context;
 
     @Override
@@ -22,7 +22,7 @@ public class ContestantResultList extends AppCompatActivity {
 
         resultList = (ListView) findViewById(R.id.contestantResultListView);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_2, android.R.id.text1, NsdChatActivity.mConnection.usernameList) {
+        adapter = new ArrayAdapter<Score>(this, android.R.layout.simple_list_item_2, android.R.id.text1, NsdChatActivity.mConnection.scoreList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
@@ -30,8 +30,8 @@ public class ContestantResultList extends AppCompatActivity {
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
                 text2.setTextSize(20);
 
-                text1.setText(NsdChatActivity.mConnection.usernameList.get(position));
-                text2.setText(String.valueOf(NsdChatActivity.mConnection.scoreList.get(position)));
+                text1.setText(NsdChatActivity.mConnection.scoreList.get(position).getUsername());
+                text2.setText(String.valueOf(NsdChatActivity.mConnection.scoreList.get(position).getMarks()));
                 return view;
             }
         };

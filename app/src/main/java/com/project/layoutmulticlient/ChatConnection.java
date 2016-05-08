@@ -13,6 +13,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -20,8 +22,8 @@ public class ChatConnection {
 
     private ChatServer mChatServer;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
-    ArrayList<Integer> scoreList = new ArrayList<Integer>();
-    ArrayList<String> usernameList = new ArrayList<String>();
+
+    ArrayList<Score> scoreList = new ArrayList<Score>();
 
     //for passsing normal messages
     public Msg createMessage(String key, String message) {
@@ -280,8 +282,13 @@ public class ChatConnection {
                                 else if(message.getKey().equals("score")) {
                                     contest_ended = true;
                                     score = Integer.parseInt(message.getMessage());
-                                    scoreList.add(score);
-                                    usernameList.add(username);
+
+                                    Score scoreItem = new Score();
+                                    scoreItem.setUsername(username);
+                                    scoreItem.setMarks(score);
+                                    scoreList.add(scoreItem);
+                                    Collections.sort(scoreList);
+
                                     if(ContestantResultList.context != null)
                                         ((ContestantResultList) ContestantResultList.context).runOnUiThread(new Runnable() {
                                             public void run() {
