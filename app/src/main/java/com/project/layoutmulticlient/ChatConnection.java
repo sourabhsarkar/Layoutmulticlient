@@ -31,7 +31,8 @@ import io.realm.RealmResults;
 public class ChatConnection {
 
     private ChatServer mChatServer;
-    private int conId;
+    int conId;
+    int marksId;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
     ArrayList<Score> scoreList = new ArrayList<Score>();
 
@@ -55,6 +56,8 @@ public class ChatConnection {
         realm.copyToRealmOrUpdate(contestHost);
         realm.commitTransaction();
 
+        RealmResults<Marks> result_marks = realm.where(Marks.class).findAll();
+        marksId = result_marks.size()+1;
     }
 
     //for passsing normal messages
@@ -92,6 +95,7 @@ public class ChatConnection {
     public void commonConnection(InetAddress address, int port, Socket s) {
         for (CommonChat obj : commonChats) {
             if(obj.mAddress == address) {
+                obj.tearDown();
                 commonChats.remove(obj);
             }
         }
@@ -281,8 +285,8 @@ public class ChatConnection {
             Realm realm_part;
             RealmConfiguration realmConfig_part;
 
-            Participant participant = new Participant();
-            Marks marks = new Marks();
+            Participant participant;
+            Marks marks;
 
             ContestHost contestQueryResult;
             Participant participantQueryResult;
@@ -294,6 +298,9 @@ public class ChatConnection {
                 realmConfig_part = new RealmConfiguration.Builder(mContext).build();
                 // Get a Realm instance for this thread
                 realm_part = Realm.getInstance(realmConfig_part);
+
+                participant = new Participant();
+                marks = new Marks();
 
                 contestQueryResult = realm_part.where(ContestHost.class).equalTo("cid",conId).findFirst();
 
@@ -331,16 +338,17 @@ public class ChatConnection {
                                     ph_no = message.getMessage();
                                     participant.setPhNo(ph_no);
 
-                                    realm_part.beginTransaction();
-                                    realm_part.copyToRealmOrUpdate(participant);
-                                    realm_part.commitTransaction();
+                                    if(pass_verified) {
+                                        realm_part.beginTransaction();
+                                        realm_part.copyToRealmOrUpdate(participant);
+                                        realm_part.commitTransaction();
 
-                                    realm_part.beginTransaction();
-                                    contestQueryResult.getParticipantList().add(participant);
-                                    realm_part.commitTransaction();
+                                        realm_part.beginTransaction();
+                                        contestQueryResult.getParticipantList().add(participant);
+                                        realm_part.commitTransaction();
 
-                                    participantQueryResult = realm_part.where(Participant.class).equalTo("email",email).findFirst();
-
+                                        participantQueryResult = realm_part.where(Participant.class).equalTo("email", email).findFirst();
+                                    }
                                 }
                                 else if(message.getKey().equals("score")) {
                                     contest_ended = true;
@@ -359,8 +367,7 @@ public class ChatConnection {
                                             }
                                         });
 
-                                    RealmResults<Marks> result_marks = realm_part.where(Marks.class).findAll();
-                                    marks.setId(result_marks.size()+1);
+                                    marks.setId(marksId++);
                                     marks.setCid(conId);
                                     marks.setEmail(email);
                                     marks.setMarks(score);
@@ -370,6 +377,9 @@ public class ChatConnection {
                                     realm_part.beginTransaction();
                                     realm_part.copyToRealmOrUpdate(marks);
                                     realm_part.commitTransaction();
+
+                                    //RealmResults<Marks> result_marks1 = realm_part.where(Marks.class).findAll();
+                                    //System.out.println("check" + result_marks1.size());
 
                                     realm_part.beginTransaction();
                                     participantQueryResult.getMarksList().add(marks);
@@ -416,6 +426,8 @@ public class ChatConnection {
 
         public void tearDown() {
             try {
+                mRecThread.interrupt();
+                mSendThread.interrupt();
                 sv_soc.close();
             } catch (IOException ioe) {
                 Log.e(CLIENT_TAG, "Error when closing server socket.");
