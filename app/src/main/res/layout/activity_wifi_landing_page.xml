@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:text="View History"
-            android:id="@+id/button7"
+            android:id="@+id/viewHistory"
             android:layout_below="@+id/button2"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp" />

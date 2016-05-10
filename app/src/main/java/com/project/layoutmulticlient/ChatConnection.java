@@ -3,8 +3,12 @@ package com.project.layoutmulticlient;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
+
+import com.project.layoutmulticlient.Realm.ContestHost;
+import com.project.layoutmulticlient.Realm.Marks;
+import com.project.layoutmulticlient.Realm.Participant;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,18 +16,46 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmList;
+import io.realm.RealmResults;
 
 public class ChatConnection {
 
     private ChatServer mChatServer;
+    private int conId;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
-
     ArrayList<Score> scoreList = new ArrayList<Score>();
+
+    //database contesthost entry
+    public void contestEntry(String con_name) {
+
+        // Create a RealmConfiguration which is to locate Realm file in package's "files" directory.
+        RealmConfiguration realmConfig = new RealmConfiguration.Builder(mContext).build();
+        // Get a Realm instance for this thread
+        Realm realm = Realm.getInstance(realmConfig);
+
+        ContestHost contestHost = new ContestHost();
+        RealmResults<ContestHost> result = realm.where(ContestHost.class).findAll();
+        conId = result.size()+1;
+        contestHost.setCid(conId);
+        contestHost.setContestName(con_name);
+        contestHost.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+        contestHost.setParticipantList(new RealmList<Participant>());
+
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(contestHost);
+        realm.commitTransaction();
+
+    }
 
     //for passsing normal messages
     public Msg createMessage(String key, String message) {
@@ -107,7 +139,7 @@ public class ChatConnection {
                 Socket sv_soc= null;
 
                 // Since discovery will happen via Nsd, we don't need to care which port is
-                // used.  Just grab an available one  and advertise it via Nsd.
+                // used. Just grab an available one and advertise it via Nsd.
                 try {
                     //Creating server socket
                     mServerSocket = new ServerSocket(0);
@@ -245,8 +277,25 @@ public class ChatConnection {
         class ReceivingThread implements Runnable {
 
             ObjectInputStream input = null;
+
+            Realm realm_part;
+            RealmConfiguration realmConfig_part;
+
+            Participant participant = new Participant();
+            Marks marks = new Marks();
+
+            ContestHost contestQueryResult;
+            Participant participantQueryResult;
+
             @Override
             public void run() {
+
+                // Create a RealmConfiguration which is to locate Realm file in package's "files" directory.
+                realmConfig_part = new RealmConfiguration.Builder(mContext).build();
+                // Get a Realm instance for this thread
+                realm_part = Realm.getInstance(realmConfig_part);
+
+                contestQueryResult = realm_part.where(ContestHost.class).equalTo("cid",conId).findFirst();
 
                 try {
                     input = new ObjectInputStream(sv_soc.getInputStream());
@@ -272,12 +321,26 @@ public class ChatConnection {
                                 }
                                 else if (message.getKey().equals("clientname")) {
                                     username = message.getMessage();
+                                    participant.setName(username);
                                 }
                                 else if (message.getKey().equals("clientemail")) {
                                     email = message.getMessage();
+                                    participant.setEmail(email);
                                 }
                                 else if (message.getKey().equals("clientphno")) {
                                     ph_no = message.getMessage();
+                                    participant.setPhNo(ph_no);
+
+                                    realm_part.beginTransaction();
+                                    realm_part.copyToRealmOrUpdate(participant);
+                                    realm_part.commitTransaction();
+
+                                    realm_part.beginTransaction();
+                                    contestQueryResult.getParticipantList().add(participant);
+                                    realm_part.commitTransaction();
+
+                                    participantQueryResult = realm_part.where(Participant.class).equalTo("email",email).findFirst();
+
                                 }
                                 else if(message.getKey().equals("score")) {
                                     contest_ended = true;
@@ -295,6 +358,22 @@ public class ChatConnection {
                                                 ContestantResultList.adapter.notifyDataSetChanged();
                                             }
                                         });
+
+                                    RealmResults<Marks> result_marks = realm_part.where(Marks.class).findAll();
+                                    marks.setId(result_marks.size()+1);
+                                    marks.setCid(conId);
+                                    marks.setEmail(email);
+                                    marks.setMarks(score);
+
+                                    System.out.println(marks.getId());
+
+                                    realm_part.beginTransaction();
+                                    realm_part.copyToRealmOrUpdate(marks);
+                                    realm_part.commitTransaction();
+
+                                    realm_part.beginTransaction();
+                                    participantQueryResult.getMarksList().add(marks);
+                                    realm_part.commitTransaction();
                                 }
                             }
                             else if (NsdChatActivity.mUserChoice.equals("client")) {

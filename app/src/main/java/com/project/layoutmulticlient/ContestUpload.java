@@ -98,7 +98,7 @@ public class ContestUpload extends Activity {
                 Toast.makeText(this, "Minutes must be within 0 to 59!", Toast.LENGTH_SHORT).show();
             }
             else if(tHrs == 0 && tMins == 0 && tSecs == 0) {
-                Toast.makeText(this, "Contest duration should be greater than 0 mins", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "ContestParticipant duration should be greater than 0 mins", Toast.LENGTH_SHORT).show();
             }
             else {
                 if(!timerStarted) {

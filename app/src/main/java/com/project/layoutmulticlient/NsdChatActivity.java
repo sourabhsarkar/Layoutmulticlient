@@ -12,6 +12,18 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.project.layoutmulticlient.Realm.ContestHost;
+import com.project.layoutmulticlient.Realm.Marks;
+import com.project.layoutmulticlient.Realm.Participant;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmList;
+import io.realm.RealmResults;
+
 public class NsdChatActivity extends Activity {
 
     Intent intent;
@@ -115,6 +127,7 @@ public class NsdChatActivity extends Activity {
         // Register service
         if(mConnection.getLocalPort() > -1) {
             mNsdHelper.registerService(mConnection.getLocalPort());
+            mConnection.contestEntry(mServiceName);
         } else {
             Log.d(TAG, "ServerSocket isn't bound.");
             Toast.makeText(this, "ServerSocket isn't bound",Toast.LENGTH_SHORT).show();
