@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.project.layoutmulticlient.Realm.ContestHost;
+import com.project.layoutmulticlient.Realm.ContestParticipant;
 import com.project.layoutmulticlient.Realm.Marks;
 import com.project.layoutmulticlient.Realm.Participant;
 
@@ -33,16 +34,15 @@ public class ChatConnection {
     private ChatServer mChatServer;
     int conId;
     int marksId;
+    int contestParticipantId;
     ArrayList<CommonChat> commonChats = new ArrayList<CommonChat>();
     ArrayList<Score> scoreList = new ArrayList<Score>();
+    ContestParticipant contestParticipant;
+    RealmConfiguration realmConfig;
+    Realm realm;
 
     //database contesthost entry
     public void contestEntry(String con_name) {
-
-        // Create a RealmConfiguration which is to locate Realm file in package's "files" directory.
-        RealmConfiguration realmConfig = new RealmConfiguration.Builder(mContext).build();
-        // Get a Realm instance for this thread
-        Realm realm = Realm.getInstance(realmConfig);
 
         ContestHost contestHost = new ContestHost();
         RealmResults<ContestHost> result = realm.where(ContestHost.class).findAll();
@@ -58,6 +58,9 @@ public class ChatConnection {
 
         RealmResults<Marks> result_marks = realm.where(Marks.class).findAll();
         marksId = result_marks.size()+1;
+
+        RealmResults<ContestParticipant> contestNo = realm.where(ContestParticipant.class).findAll();
+        contestParticipantId = contestNo.size()+1;
     }
 
     //for passsing normal messages
@@ -77,9 +80,18 @@ public class ChatConnection {
 
     public ChatConnection(Context c) {
         mContext = c;
+
+        // Create a RealmConfiguration which is to locate Realm file in package's "files" directory.
+        realmConfig = new RealmConfiguration.Builder(mContext).build();
+        // Get a Realm instance for this thread
+        realm = Realm.getInstance(realmConfig);
+
         //if the user is a server create the server socket
         if(NsdChatActivity.mUserChoice.equals("server")) {
             mChatServer = new ChatServer();
+        }
+        else {
+            contestParticipant = new ContestParticipant();
         }
     }
 
@@ -105,8 +117,16 @@ public class ChatConnection {
 
     public void sendAllMessage(String key, String msg) {
         for (CommonChat chatClient : commonChats) {
-            if(chatClient.pass_verified)
+            if(chatClient.pass_verified) {
                 chatClient.sendMessage(createMessage(key, msg));
+                if(key.equals("score")) {
+                    contestParticipant.setMarks(Integer.valueOf(msg));
+
+                    realm.beginTransaction();
+                    realm.copyToRealmOrUpdate(contestParticipant);
+                    realm.commitTransaction();
+                }
+            }
         }
     }
 
@@ -256,16 +276,15 @@ public class ChatConnection {
             public void run() {
                 try {
                     //Log.d(TAG, mAddress + " " + PORT);
-                    if(NsdChatActivity.mUserChoice.equals("client")) {
+                    if (NsdChatActivity.mUserChoice.equals("client")) {
                         //Creating Client socket
                         sv_soc = new Socket(mAddress, PORT);
                         Log.d(CLIENT_TAG, "Client-side socket initialized.");
-                        sendMessage(createMessage("clientpass",NsdChatActivity.client_pass));
-                        sendMessage(createMessage("clientname",NsdChatActivity.clientName));
-                        sendMessage(createMessage("clientemail",NsdChatActivity.clientEmail));
-                        sendMessage(createMessage("clientphno",NsdChatActivity.clientPhNo));
-                    }
-                    else {
+                        sendMessage(createMessage("clientpass", NsdChatActivity.client_pass));
+                        sendMessage(createMessage("clientname", NsdChatActivity.clientName));
+                        sendMessage(createMessage("clientemail", NsdChatActivity.clientEmail));
+                        sendMessage(createMessage("clientphno", NsdChatActivity.clientPhNo));
+                    } else {
                         Log.d(CLIENT_TAG, "Socket already initialized. skipping!");
                     }
                 } catch (IOException e) {
@@ -302,7 +321,7 @@ public class ChatConnection {
                 participant = new Participant();
                 marks = new Marks();
 
-                contestQueryResult = realm_part.where(ContestHost.class).equalTo("cid",conId).findFirst();
+                contestQueryResult = realm_part.where(ContestHost.class).equalTo("cid", conId).findFirst();
 
                 try {
                     input = new ObjectInputStream(sv_soc.getInputStream());
@@ -319,26 +338,23 @@ public class ChatConnection {
                                     if (!NsdChatActivity.server_pass.equals(message.getMessage())) {
                                         Log.d(TAG, "pass client: " + message.getMessage());
                                         sendMessage(createMessage("passcheck", "mismatch"));
-                                    }
-                                    else {
+                                    } else {
                                         pass_verified = true;
                                         sendMessage(createMessage("passcheck", "matched"));
                                         sendMessage(createMessage("contest_details", NsdChatActivity.con_details_str));
+                                        sendMessage(createMessage("cid", String.valueOf(conId)));
                                     }
-                                }
-                                else if (message.getKey().equals("clientname")) {
+                                } else if (message.getKey().equals("clientname")) {
                                     username = message.getMessage();
                                     participant.setName(username);
-                                }
-                                else if (message.getKey().equals("clientemail")) {
+                                } else if (message.getKey().equals("clientemail")) {
                                     email = message.getMessage();
                                     participant.setEmail(email);
-                                }
-                                else if (message.getKey().equals("clientphno")) {
+                                } else if (message.getKey().equals("clientphno")) {
                                     ph_no = message.getMessage();
                                     participant.setPhNo(ph_no);
 
-                                    if(pass_verified) {
+                                    if (pass_verified) {
                                         realm_part.beginTransaction();
                                         realm_part.copyToRealmOrUpdate(participant);
                                         realm_part.commitTransaction();
@@ -349,8 +365,7 @@ public class ChatConnection {
 
                                         participantQueryResult = realm_part.where(Participant.class).equalTo("email", email).findFirst();
                                     }
-                                }
-                                else if(message.getKey().equals("score")) {
+                                } else if (message.getKey().equals("score")) {
                                     contest_ended = true;
                                     score = Integer.parseInt(message.getMessage());
 
@@ -360,7 +375,7 @@ public class ChatConnection {
                                     scoreList.add(scoreItem);
                                     Collections.sort(scoreList);
 
-                                    if(ContestantResultList.context != null)
+                                    if (ContestantResultList.context != null)
                                         ((ContestantResultList) ContestantResultList.context).runOnUiThread(new Runnable() {
                                             public void run() {
                                                 ContestantResultList.adapter.notifyDataSetChanged();
@@ -385,32 +400,32 @@ public class ChatConnection {
                                     participantQueryResult.getMarksList().add(marks);
                                     realm_part.commitTransaction();
                                 }
-                            }
-                            else if (NsdChatActivity.mUserChoice.equals("client")) {
+                            } else if (NsdChatActivity.mUserChoice.equals("client")) {
                                 if (message.getKey().equals("passcheck")) {
                                     if (message.getMessage().equals("matched")) {
                                         pass_verified = true;
-                                    }
-                                    else {
+                                    } else {
                                         ((NsdChatActivity) mContext).runOnUiThread(new Runnable() {
                                             public void run() {
                                                 Toast.makeText(mContext, "Password mismatch!", Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                     }
-                                }
-                                else if(message.getKey().equals("ques")) {
-                                    if(!ques_received) {
+                                } else if (message.getKey().equals("ques")) {
+                                    if (!ques_received) {
                                         ques_received = true;
                                         intent.putExtra("quesMsg", message);
                                         mContext.startActivity(intent);
                                     }
-                                }
-                                else if(message.getKey().equals("timer")) {
+                                } else if (message.getKey().equals("timer")) {
                                     intent.putExtra("timer", Long.parseLong(message.getMessage()));
-                                }
-                                else if(message.getKey().equals("contest_details")) {
+                                } else if (message.getKey().equals("contest_details")) {
                                     intent.putExtra("contest_details", message.getMessage());
+                                } else if (message.getKey().equals("cid")) {
+                                    contestParticipant.setCid(Integer.valueOf(message.getMessage()));
+                                    contestParticipant.setContestName(NsdChatActivity.mServiceName);
+                                    contestParticipant.setDate(new SimpleDateFormat("dd-MM-yyyy").format(new Date()));
+                                    contestParticipant.setId(contestParticipantId);
                                 }
                             }
                         }

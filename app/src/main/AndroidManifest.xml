@@ -45,7 +45,8 @@
         <activity
             android:name=".ResultContestant"
             android:screenOrientation="portrait" />
-        <activity android:name=".ContestantResultList"></activity>
+        <activity android:name=".ContestantResultList" />
+        <activity android:name=".ViewHistoryOptions"></activity>
     </application>
 
 </manifest>

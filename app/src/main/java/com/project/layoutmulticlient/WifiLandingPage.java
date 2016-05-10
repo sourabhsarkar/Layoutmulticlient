@@ -26,9 +26,6 @@ public class WifiLandingPage extends Activity {
     Intent intent;
     Button viewHistory;
 
-    Realm realm;
-    RealmConfiguration realmConfig;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,22 +35,12 @@ public class WifiLandingPage extends Activity {
 
         requestPermissions();
 
-        // Create a RealmConfiguration which is to locate Realm file in package's "files" directory.
-        realmConfig = new RealmConfiguration.Builder(this).build();
-        // Get a Realm instance for this thread
-        realm = Realm.getInstance(realmConfig);
-
         viewHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if(realm != null) {
-                    new RealmBrowser.Builder(WifiLandingPage.this)
-                            .add(realm, ContestHost.class)
-                            .add(realm, Participant.class)
-                            .add(realm, Marks.class)
-                            .show();
-                }
+                Intent intent = new Intent(WifiLandingPage.this, ViewHistoryOptions.class);
+                startActivity(intent);
             }
         });
     }
