@@ -54,7 +54,6 @@ public class ViewHistoryOptions extends AppCompatActivity {
                         .add(realm, Participant.class)
                         .add(realm, Marks.class)
                         .show();
-
             }
         });
     }
