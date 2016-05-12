@@ -32,11 +32,6 @@ public class NsdHelper {
         mNsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
     }
 
-    public void initializeNsd() {
-        initializeResolveListener();
-        //mNsdManager.init(mContext.getMainLooper(), this);
-    }
-
     public void initializeDiscoveryListener() {
         mDiscoveryListener = new NsdManager.DiscoveryListener() {
 
@@ -91,7 +86,7 @@ public class NsdHelper {
         };
     }
 
-    public void initializeResolveListener() {
+    public void initializeNsd() {
         mResolveListener = new NsdManager.ResolveListener() {
 
             @Override

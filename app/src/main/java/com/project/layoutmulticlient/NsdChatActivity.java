@@ -114,7 +114,7 @@ public class NsdChatActivity extends Activity {
         clientName = part_name.getText().toString();
         clientEmail = part_email.getText().toString();
         clientPhNo = part_ph.getText().toString();
-        if(con_join_name.getText().toString().equals("") || client_pass.equals("")) {
+        if(con_join_name.getText().toString().equals("") || client_pass.equals("") || clientName.equals("")|| clientPhNo.equals("")|| clientEmail.equals("")) {
             Toast.makeText(this, "One or more fields is empty", Toast.LENGTH_LONG).show();
         }
         else {
